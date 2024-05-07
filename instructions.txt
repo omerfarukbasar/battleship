@@ -1,0 +1,13 @@
+Instructions:
+
+Click Join to join a match hosted on the local network
+
+Click Host to host a match on the local network
+
+Rules:
+
+Upon joining a match, both users will have their ships randomly placed on the board for them.
+A person will be randomly selected to go first. Upon the user's turn, they will be asked to pick a
+coordinate on the map to launch artillery at. After confirming the selection, it will be announced
+if the attack was a hit or miss. The goal is to sink all of the opponent's ships. A winner is decided
+when one person has lost all of their ships.
