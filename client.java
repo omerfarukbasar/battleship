@@ -36,6 +36,7 @@ public class client extends JFrame {
         hostButton.addActionListener(e ->
                 {
                     System.out.println("Host pressed");
+                    hostHandshake.startConnection();
                 }
         );
         homePanel.add(hostButton, gbc);
@@ -45,6 +46,7 @@ public class client extends JFrame {
         joinButton.addActionListener(e ->
                 {
                     System.out.println("Join pressed");
+                    joinHandshake.joinConnection();
                 }
         );
         homePanel.add(joinButton, gbc);
