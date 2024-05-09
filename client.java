@@ -15,7 +15,8 @@ public class client extends JFrame {
         setResizable(false);
 
         // Land on homepage
-        this.setContentPane(views.getHome(this));
+        views yeet = new views();
+        this.setContentPane(yeet.getHome(this));
 
         // Other stuff
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

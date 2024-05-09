@@ -6,10 +6,13 @@ import java.io.*;
 
 public class views {
 
-    static handshake protocol = new handshake();
-    static JTextArea chatArea;
+    handshake protocol = new handshake();
+    JTextArea chatArea;
 
-    public static JPanel getHome(JFrame parent) {
+    public views(){
+    }
+
+    public JPanel getHome(JFrame parent) {
         // Set up the background image panel
         ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
 
@@ -60,7 +63,7 @@ public class views {
         return  homePanel;
     }
 
-    public static JPanel getInstructions(JFrame parent) {
+    public JPanel getInstructions(JFrame parent) {
         // Set up the background image panel
         ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
 
@@ -105,7 +108,7 @@ public class views {
         return homePanel;
     }
     // Main game UI with two boards and the chat panel on the right
-    public static JPanel getGame(JFrame parent) {
+    public JPanel getGame(JFrame parent) {
         // GridBagLayout constraints
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -159,7 +162,7 @@ public class views {
     }
 
     // Create the chat panel method
-    public static JPanel createChatPanel() {
+    public JPanel createChatPanel() {
         // Panel for chat
         JPanel chatPanel = new JPanel(new BorderLayout());
         chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
@@ -204,7 +207,7 @@ public class views {
     }
 
     // Listens to ongoing chat messages relayed from server using another thread
-    public static void listenForMessages() {
+    public void listenForMessages() {
         new Thread(() -> {
             try {
                 DataInputStream fromServer = new DataInputStream(protocol.usedSocket.getInputStream());
@@ -220,7 +223,7 @@ public class views {
     }
 
     // Allows for sending a message upon hitting send
-    public static void sendMessage(String message) {
+    public void sendMessage(String message) {
         try {
             DataOutputStream toServer = new DataOutputStream(protocol.usedSocket.getOutputStream());
             toServer.writeUTF(message);
@@ -231,7 +234,7 @@ public class views {
 
 
     // Create the chat panel method
-    private static JPanel createAnnouncerPanel() {
+    private JPanel createAnnouncerPanel() {
         // Panel for announcer
         JPanel announcerPanel = new JPanel(new BorderLayout());
         announcerPanel.setBorder(BorderFactory.createTitledBorder("Announcements"));
