@@ -1,11 +1,13 @@
 import javax.swing.*;
 import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.io.*;
 
 public class views {
 
-    public static handshake protocol = new handshake();
+    static handshake protocol = new handshake();
+    static JTextArea chatArea;
 
     public static JPanel getHome(JFrame parent) {
         // Set up the background image panel
@@ -146,11 +148,8 @@ public class views {
         mainPanel.add(boardContainer, BorderLayout.CENTER);
         JPanel sidePanel = new JPanel(new BorderLayout());
 
-        chatFunctions newChat = new chatFunctions(protocol.usedSocket);
-
-        sidePanel.add(newChat.createChatPanel(), BorderLayout.NORTH);
-        newChat.listenForMessages();
-
+        sidePanel.add(createChatPanel(), BorderLayout.NORTH);
+        listenForMessages();
         sidePanel.add(createAnnouncerPanel(), BorderLayout.SOUTH);
 
         mainPanel.add(sidePanel, BorderLayout.EAST);
@@ -158,6 +157,75 @@ public class views {
 
         // Return the main panel containing everything
         return mainPanel;
+    }
+
+    // Create the chat panel method
+    public static JPanel createChatPanel() {
+        // Panel for chat
+        JPanel chatPanel = new JPanel(new BorderLayout());
+        chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
+
+        // Text area for chat messages
+        chatArea = new JTextArea(15, 20);
+        chatArea.setEditable(false); // Make it non-editable for incoming messages
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+
+        // Text field for entering new chat messages
+        JTextField inputField = new JTextField();
+        JButton sendButton = new JButton("Send");
+
+        // Action listener for the send button
+        ActionListener sendAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String message = inputField.getText().trim();
+                if (!message.isEmpty()) {
+                    chatArea.append("You: " + message + "\n");
+                    sendMessage(message);
+                    inputField.setText("");
+                }
+            }
+        };
+
+        // Attach the send action to both the button and the text field (on Enter)
+        sendButton.addActionListener(sendAction);
+        inputField.addActionListener(sendAction);
+
+        // Bottom panel for text input and send button
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        inputPanel.add(inputField, BorderLayout.CENTER);
+        inputPanel.add(sendButton, BorderLayout.EAST);
+
+        // Add components to the chat panel
+        chatPanel.add(scrollPane, BorderLayout.CENTER);
+        chatPanel.add(inputPanel, BorderLayout.SOUTH);
+
+        return chatPanel;
+    }
+
+    // Listens to ongoing chat messages relayed from server using another thread
+    public static void listenForMessages() {
+        new Thread(() -> {
+            try {
+                DataInputStream fromServer = new DataInputStream(protocol.usedSocket.getInputStream());
+                // While connection is still active
+                while (true) {
+                    String message = fromServer.readUTF();
+                    chatArea.append(message + "\n");
+                }
+            }
+            catch (IOException e) {System.err.println("Listening error: " + e.getMessage());}
+            catch (Exception e) {System.err.println("Other Listening error: " + e.getMessage());}
+        }).start();
+    }
+
+    // Allows for sending a message upon hitting send
+    public static void sendMessage(String message) {
+        try {
+            DataOutputStream toServer = new DataOutputStream(protocol.usedSocket.getOutputStream());
+            toServer.writeUTF(message);
+        }
+        catch (IOException e) {System.err.println("Send error: " + e.getMessage());}
+        catch (Exception e) {System.err.println("Other Send error: " + e.getMessage());}
     }
 
 

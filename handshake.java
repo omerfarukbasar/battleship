@@ -6,13 +6,13 @@ import java.net.*;
 
 public class handshake {
 
-    public handshake(){
+    public Socket usedSocket;
 
+    public handshake(){
+        usedSocket = null;
     }
 
-    public static Socket usedSocket;
-
-    public static void startConnection() {
+    public void startConnection() {
         int gamePort = 8989;
 
         try (DatagramSocket udpSocket = new DatagramSocket(gamePort)) {
@@ -42,7 +42,7 @@ public class handshake {
         catch (IOException e) {System.out.println("host IO error: " + e.getMessage());}
     }
 
-    public static void joinConnection() {
+    public void joinConnection() {
         int gamePort = 8989;
         try {
             // Broadcast address for the network
@@ -68,7 +68,6 @@ public class handshake {
             // Establish a TCP connection to the server
             try (Socket tcpSocket = new Socket(serverIp, gamePort)) {
                 usedSocket = tcpSocket;
-
             }
         } catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
     }
