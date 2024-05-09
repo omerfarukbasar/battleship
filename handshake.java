@@ -70,13 +70,15 @@ public class handshake {
             buffer = new byte[256];
             packet = new DatagramPacket(buffer, buffer.length);
             udpSocket.receive(packet);
-            System.out.println(packet.getSocketAddress());
-            String serverMessage = new String(packet.getData(), 0, packet.getLength());
+            //System.out.println(packet.getSocketAddress());
+            //InetAddress serverAddress = packet.getAddress();
+            //String serverMessage = new String(packet.getData(), 0, packet.getLength());
             udpSocket.close();
 
             // Extract server IP address and TCP port
-            String[] serverInfo = serverMessage.split(":");
+            String[] serverInfo = packet.getAddress().toString().substring(1).split(":");
             String serverIp = serverInfo[0];
+            //String serverAddress = serverInfo[0];
             int tcpPort = Integer.parseInt(serverInfo[1]);
             System.out.println("Received server IP and port: " + serverIp + ":" + tcpPort);
 
