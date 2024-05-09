@@ -29,9 +29,10 @@ public class views {
         hostButton.addActionListener(e ->
                 {
                     System.out.println("Host pressed");
-                    handshake.startConnection();
+                    serverIP = handshake.startConnection();
                     parent.setContentPane(getGame(parent));
-                    toServer = chatStuff.hostIM(chatArea);
+                    //toServer = chatStuff.hostIM(chatArea);
+                    System.out.println(toServer);
                     parent.revalidate();
                     parent.repaint();
                 }
@@ -45,7 +46,8 @@ public class views {
                     System.out.println("Join pressed");
                     serverIP = handshake.joinConnection();
                     parent.setContentPane(getGame(parent));
-                    toServer = chatStuff.clientIM(serverIP, chatArea);
+                    new Thread(() -> chatStuff.listenToMsg(chatArea)).start();
+                    //toServer = chatStuff.clientIM(serverIP, chatArea);
                     parent.revalidate();
                     parent.repaint();
                 }
@@ -186,8 +188,8 @@ public class views {
             public void actionPerformed(ActionEvent e) {
                 String message = inputField.getText().trim();
                 if (!message.isEmpty()) {
-                    chatArea.append("You: " + message + "\n");
-                    chatStuff.sendMessage(message,toServer,chatArea);
+                    //chatArea.append("You: " + message + "\n");
+                    chatStuff.sendMessage(message,serverIP,chatArea);
                     inputField.setText("");
                 }
             }
@@ -210,34 +212,6 @@ public class views {
 
         return chatPanel;
     }
-    /*
-    // Listens to ongoing chat messages relayed from server using another thread
-    public void listenForMessages() {
-        new Thread(() -> {
-            try {
-                DataInputStream fromServer = new DataInputStream(protocol.getUsedSocket().getInputStream());
-                // While connection is still active
-                while (true) {
-                    String message = fromServer.readUTF();
-                    chatArea.append(message + "\n");
-                }
-            }
-            catch (IOException e) {System.err.println("Listening error: " + e.getMessage());}
-            catch (Exception e) {System.err.println("Other Listening error: " + e.getMessage());}
-        }).start();
-    }
-
-
-    // Allows for sending a message upon hitting send
-    public void sendMessage(String message) {
-        try {
-            DataOutputStream toServer = new DataOutputStream(protocol.getUsedSocket().getOutputStream());
-            toServer.writeUTF(message);
-        }
-        catch (IOException e) {System.err.println("Send error: " + e.getMessage());}
-        catch (Exception e) {System.err.println("Other Send error: " + e.getMessage());}
-    }
-    */
 
     // Create the chat panel method
     private JPanel createAnnouncerPanel() {
@@ -255,62 +229,4 @@ public class views {
 
         return announcerPanel;
     }
-
-    public static DataOutputStream hostIM(JTextArea textArea){
-        int PORT = 4545;
-        try (ServerSocket serverSocket = new ServerSocket(PORT);){
-            // Accept into socket
-            Socket socket = serverSocket.accept();
-
-            // Setup streams
-            DataInputStream fromClient = new DataInputStream(socket.getInputStream());
-            DataOutputStream toClient = new DataOutputStream(socket.getOutputStream());
-
-            // Separate into new thread
-            new Thread(() -> listenToMsg(fromClient, textArea)).start();
-            return toClient;
-        }
-        catch (IOException e) {System.err.println("Server error: " + e.getMessage());}
-        return null;
-    }
-    // Individual thread that handles each client
-    private static void listenToMsg(DataInputStream fromClient,JTextArea textArea) {
-        try {
-            // Read messages from client while connection is still open
-            while (true) {
-                String Msg = fromClient.readUTF();
-                textArea.append("Opponent: " + Msg + "\n");
-            }
-        }
-        catch (Exception e) {textArea.append("Opponent Disconnected \n");
-            e.printStackTrace();
-        }
-    }
-    public static DataOutputStream clientIM(String serverIP, JTextArea textArea){
-        int PORT = 4545;
-        try (Socket socket = new Socket(serverIP, PORT)) {
-
-            // Setup data streams
-            DataInputStream fromServer = new DataInputStream(socket.getInputStream());
-            DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
-
-            // Keep reading in broadcasted messages from server
-            new Thread(() -> listenToMsg(fromServer,textArea)).start();
-            return toServer;
-        }
-        catch (IOException e) {System.err.println("Connection error: " + e.getMessage());}
-        return null;
-    }
-    // Allows for sending a message upon hitting send
-    public static void sendMessage(String message, DataOutputStream toServer, JTextArea chat) {
-        try {
-            // Encrypt message using communication key and send
-            toServer.writeUTF(message);
-            chat.append("You: " + message + "\n");
-        }
-        catch (IOException e) {System.err.println("Send error: " + e.getMessage());}
-        catch (Exception e) {System.err.println("Other Send error: " + e.getMessage());}
-    }
-
-
 }

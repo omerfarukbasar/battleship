@@ -6,7 +6,7 @@ import java.net.*;
 
 public class handshake {
 
-    public static void startConnection() {
+    public static String startConnection() {
         int gamePort = 8989;
 
         try (DatagramSocket udpSocket = new DatagramSocket(gamePort)) {
@@ -20,19 +20,21 @@ public class handshake {
             int clientPort = packet.getPort();
             System.out.println(clientPort);
 
+            // Extract server IP address and TCP port
+            String serverIp = packet.getAddress().toString().substring(1);
+
+
             // Send the server's IP address and TCP port to the client
             String serverMessage = "Received request to join";
             buffer = serverMessage.getBytes();
             DatagramPacket response = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             udpSocket.send(response);
             udpSocket.close();
-            System.out.println("yeet");
-            System.out.println("yeet");
-            System.out.println("yeet");
-
+            return serverIp;
         }
         catch (SocketException e) {System.out.println("host Socket error: " + e.getMessage());}
         catch (IOException e) {System.out.println("host IO error: " + e.getMessage());}
+        return null;
     }
 
     public static String joinConnection() {
