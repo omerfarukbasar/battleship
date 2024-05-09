@@ -4,6 +4,9 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 
 public class views {
+
+    public static handshake protocol = new handshake();
+
     public static JPanel getHome(JFrame parent) {
         // Set up the background image panel
         ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
@@ -18,7 +21,7 @@ public class views {
         hostButton.addActionListener(e ->
                 {
                     System.out.println("Host pressed");
-                    handshake.startConnection();
+                    protocol.startConnection();
                     parent.setContentPane(getGame(parent));
                     parent.revalidate();
                     parent.repaint();
@@ -31,7 +34,7 @@ public class views {
         joinButton.addActionListener(e ->
                 {
                     System.out.println("Join pressed");
-                    handshake.joinConnection();
+                    protocol.joinConnection();
                     parent.setContentPane(getGame(parent));
                     parent.revalidate();
                     parent.repaint();
@@ -143,7 +146,11 @@ public class views {
         mainPanel.add(boardContainer, BorderLayout.CENTER);
         JPanel sidePanel = new JPanel(new BorderLayout());
 
-        sidePanel.add(createChatPanel(), BorderLayout.NORTH);
+        chatFunctions newChat = new chatFunctions(protocol.usedSocket);
+
+        sidePanel.add(newChat.createChatPanel(), BorderLayout.NORTH);
+        newChat.listenForMessages();
+
         sidePanel.add(createAnnouncerPanel(), BorderLayout.SOUTH);
 
         mainPanel.add(sidePanel, BorderLayout.EAST);
@@ -153,48 +160,7 @@ public class views {
         return mainPanel;
     }
 
-    // Create the chat panel method
-    private static JPanel createChatPanel() {
-        // Panel for chat
-        JPanel chatPanel = new JPanel(new BorderLayout());
-        chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
 
-        // Text area for chat messages
-        JTextArea chatArea = new JTextArea(15, 20);
-        chatArea.setEditable(false); // Make it non-editable for incoming messages
-        JScrollPane scrollPane = new JScrollPane(chatArea);
-
-        // Text field for entering new chat messages
-        JTextField inputField = new JTextField();
-        JButton sendButton = new JButton("Send");
-
-        /* // Action listener for the send button
-        ActionListener sendAction = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String message = inputField.getText().trim();
-                if (!message.isEmpty()) {
-                    chatArea.append("You: " + message + "\n");
-                    inputField.setText(""); // Clear input field after sending
-                }
-            }
-        };
-        */
-
-        // Attach the send action to both the button and the text field (on Enter)
-        //sendButton.addActionListener(sendAction);
-        //inputField.addActionListener(sendAction);
-
-        // Bottom panel for text input and send button
-        JPanel inputPanel = new JPanel(new BorderLayout());
-        inputPanel.add(inputField, BorderLayout.CENTER);
-        inputPanel.add(sendButton, BorderLayout.EAST);
-
-        // Add components to the chat panel
-        chatPanel.add(scrollPane, BorderLayout.CENTER);
-        chatPanel.add(inputPanel, BorderLayout.SOUTH);
-
-        return chatPanel;
-    }
     // Create the chat panel method
     private static JPanel createAnnouncerPanel() {
         // Panel for announcer
