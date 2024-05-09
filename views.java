@@ -149,7 +149,6 @@ public class views {
         JPanel sidePanel = new JPanel(new BorderLayout());
 
         sidePanel.add(createChatPanel(), BorderLayout.NORTH);
-        listenForMessages();
         sidePanel.add(createAnnouncerPanel(), BorderLayout.SOUTH);
 
         mainPanel.add(sidePanel, BorderLayout.EAST);
@@ -198,6 +197,8 @@ public class views {
         // Add components to the chat panel
         chatPanel.add(scrollPane, BorderLayout.CENTER);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
+
+        listenForMessages();
 
         return chatPanel;
     }

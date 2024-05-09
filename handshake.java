@@ -35,6 +35,7 @@ public class handshake {
             // Start the TCP server to accept incoming connections
             try (ServerSocket tcpServer = new ServerSocket(gamePort)) {
                 usedSocket = tcpServer.accept();
+                System.out.println(usedSocket.toString());
             }
         }
         catch (SocketException e) {System.out.println("host Socket error: " + e.getMessage());}
@@ -67,6 +68,7 @@ public class handshake {
             // Establish a TCP connection to the server
             try (Socket tcpSocket = new Socket(serverIp, gamePort)) {
                 usedSocket = tcpSocket;
+                System.out.println(usedSocket.toString());
             }
         } catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
     }
