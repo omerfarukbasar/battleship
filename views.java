@@ -10,7 +10,7 @@ public class views {
 
     String serverIP;
     JTextArea chatArea;
-    DataOutputStream toServer;
+    //DataOutputStream toServer;
 
     public views(){
     }
@@ -31,8 +31,7 @@ public class views {
                     System.out.println("Host pressed");
                     serverIP = handshake.startConnection();
                     parent.setContentPane(getGame(parent));
-                    //toServer = chatStuff.hostIM(chatArea);
-                    System.out.println(toServer);
+                    new Thread(() -> chatStuff.listenToMsg(chatArea)).start();
                     parent.revalidate();
                     parent.repaint();
                 }
@@ -47,7 +46,6 @@ public class views {
                     serverIP = handshake.joinConnection();
                     parent.setContentPane(getGame(parent));
                     new Thread(() -> chatStuff.listenToMsg(chatArea)).start();
-                    //toServer = chatStuff.clientIM(serverIP, chatArea);
                     parent.revalidate();
                     parent.repaint();
                 }
