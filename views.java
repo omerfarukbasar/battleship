@@ -95,11 +95,11 @@ public class views {
             int row = i / 10;
             int col = i % 10;
 
-            // Set up action listener to send moves via UDP
+            // Set up action listener to send moves via UDP and update colors
             button.addActionListener(e -> {
                 if (isMyTurn[0]) {
                     button.setEnabled(false); // Disable after clicking
-                    gameServer.sendMove(row + "," + col, serverIP, announceArea);
+                    gameServer.sendMoveAndReceive(row + "," + col, serverIP, announceArea, opponentBoardButtons, row, col);
                     isMyTurn[0] = false; // Switch turns after move
                 } else {
                     JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");
