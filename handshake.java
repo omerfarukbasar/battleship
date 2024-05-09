@@ -7,7 +7,7 @@ import java.net.*;
 public class handshake {
 
     public static String startConnection() {
-        int gamePort = 8989;
+        int gamePort = 8990;
 
         try (DatagramSocket udpSocket = new DatagramSocket(gamePort)) {
             byte[] buffer = new byte[256];
@@ -48,7 +48,7 @@ public class handshake {
             // Broadcast message to find the server
             String message = "Join game request";
             byte[] buffer = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, 8989);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, 8990);
             udpSocket.send(packet);
 
             // Listen for the server's response containing its IP address and TCP port

@@ -1,6 +1,4 @@
 import javax.swing.*;
-import java.io.DataInputStream;
-import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.*;
 
@@ -13,6 +11,7 @@ public class chatStuff {
             byte[] buffer = new byte[256];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
             System.out.println("Listening for broadcast messages on port " + gamePort);
+
 
             // Read messages from client while connection is still open
             while (true) {
