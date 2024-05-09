@@ -44,6 +44,6 @@ public class handshake {
 
             socket.close();
         }
-        catch(IOException e){System.err.println("host handshake error: " + e.getMessage());}
+        catch(IOException e){System.err.println("join handshake error: " + e.getMessage());}
     }
 }

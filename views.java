@@ -99,52 +99,116 @@ public class views {
         // Return panel
         return homePanel;
     }
+    // Main game UI with two boards and the chat panel on the right
     public static JPanel getGame(JFrame parent) {
-        // Set up the background image panel
-        ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
-
-        // Set gridbag layout to allow for buttons and background image
-        homePanel.setLayout(new GridBagLayout());
+        // GridBagLayout constraints
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
+        gbc.fill = GridBagConstraints.BOTH;
+        gbc.weightx = 1.0;
+        gbc.weighty = 1.0;
 
-        // Create a JPanel with a grid layout for the 10x10 grid
-        JPanel panel = new JPanel(new GridLayout(10, 10));
+        // Create the board panel with GridBagLayout
+        JPanel boardContainer = new JPanel(new GridBagLayout());
 
-        // Populate the grid with buttons
+        // Create the first board (10x10)
+        JPanel board1 = new JPanel(new GridLayout(10, 10));
+        board1.setBorder(BorderFactory.createTitledBorder("Opponent's Board"));
         for (int i = 0; i < 100; i++) {
             JButton button = new JButton(String.valueOf(i + 1));
             button.setOpaque(true);
-            if(i % 2 == 0)
-                button.setBackground(Color.RED);
-            else if(i % 3 == 0)
-                button.setBackground(Color.GREEN);
-            else
-                button.setBackground(Color.BLUE);
-            panel.add(button);
-
+            if (i % 2 == 0) button.setBackground(Color.RED);
+            else if (i % 3 == 0) button.setBackground(Color.GREEN);
+            else button.setBackground(Color.BLUE);
+            board1.add(button);
         }
-        homePanel.add(panel,gbc);
+        boardContainer.add(board1, gbc);
 
-        // Create a JPanel with a grid layout for the 10x10 grid
-        JPanel panel1 = new JPanel(new GridLayout(10, 10));
-
-        // Populate the grid with buttons
+        // Create the second board (10x10)
+        JPanel board2 = new JPanel(new GridLayout(10, 10));
+        board2.setBorder(BorderFactory.createTitledBorder("Your Board"));
         for (int i = 0; i < 100; i++) {
-            JButton button = new JButton(String.valueOf(i + 1)); // Or use different labels if needed
+            JButton button = new JButton(String.valueOf(i + 1));
             button.setEnabled(false);
             button.setOpaque(true);
-            if(i % 2 == 0)
-                button.setBackground(Color.RED);
-            else if(i % 3 == 0)
-                button.setBackground(Color.GREEN);
-            else
-                button.setBackground(Color.BLUE);
-            panel1.add(button);
+            if (i % 2 == 0) button.setBackground(Color.RED);
+            else if (i % 3 == 0) button.setBackground(Color.GREEN);
+            else button.setBackground(Color.BLUE);
+            board2.add(button);
         }
-        homePanel.add(panel1,gbc);
+        boardContainer.add(board2, gbc);
 
-        // Return panel
-        return homePanel;
+        // Create the main container to hold both game boards and the chat panel
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(boardContainer, BorderLayout.CENTER);
+        JPanel sidePanel = new JPanel(new BorderLayout());
+
+        sidePanel.add(createChatPanel(), BorderLayout.NORTH);
+        sidePanel.add(createAnnouncerPanel(), BorderLayout.SOUTH);
+
+        mainPanel.add(sidePanel, BorderLayout.EAST);
+
+
+        // Return the main panel containing everything
+        return mainPanel;
+    }
+
+    // Create the chat panel method
+    private static JPanel createChatPanel() {
+        // Panel for chat
+        JPanel chatPanel = new JPanel(new BorderLayout());
+        chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
+
+        // Text area for chat messages
+        JTextArea chatArea = new JTextArea(15, 20);
+        chatArea.setEditable(false); // Make it non-editable for incoming messages
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+
+        // Text field for entering new chat messages
+        JTextField inputField = new JTextField();
+        JButton sendButton = new JButton("Send");
+
+        /* // Action listener for the send button
+        ActionListener sendAction = new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String message = inputField.getText().trim();
+                if (!message.isEmpty()) {
+                    chatArea.append("You: " + message + "\n");
+                    inputField.setText(""); // Clear input field after sending
+                }
+            }
+        };
+        */
+
+        // Attach the send action to both the button and the text field (on Enter)
+        //sendButton.addActionListener(sendAction);
+        //inputField.addActionListener(sendAction);
+
+        // Bottom panel for text input and send button
+        JPanel inputPanel = new JPanel(new BorderLayout());
+        inputPanel.add(inputField, BorderLayout.CENTER);
+        inputPanel.add(sendButton, BorderLayout.EAST);
+
+        // Add components to the chat panel
+        chatPanel.add(scrollPane, BorderLayout.CENTER);
+        chatPanel.add(inputPanel, BorderLayout.SOUTH);
+
+        return chatPanel;
+    }
+    // Create the chat panel method
+    private static JPanel createAnnouncerPanel() {
+        // Panel for announcer
+        JPanel announcerPanel = new JPanel(new BorderLayout());
+        announcerPanel.setBorder(BorderFactory.createTitledBorder("Announcements"));
+
+        // Text area for announcements
+        JTextArea chatArea = new JTextArea(15, 20);
+        chatArea.setEditable(false); // Make it non-editable for incoming messages
+        JScrollPane scrollPane = new JScrollPane(chatArea);
+
+        // Add components to the announcement panel
+        announcerPanel.add(scrollPane, BorderLayout.CENTER);
+
+        return announcerPanel;
     }
 }
