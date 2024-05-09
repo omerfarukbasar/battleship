@@ -26,6 +26,9 @@ public class handshake {
             DatagramPacket response = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             udpSocket.send(response);
             udpSocket.close();
+            System.out.println("yeet");
+            System.out.println("yeet");
+            System.out.println("yeet");
 
         }
         catch (SocketException e) {System.out.println("host Socket error: " + e.getMessage());}

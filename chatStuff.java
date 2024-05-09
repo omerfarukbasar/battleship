@@ -33,7 +33,9 @@ public class chatStuff {
                 textArea.append("Opponent: " + Msg + "\n");
             }
         }
-        catch (Exception e) {textArea.append("Opponent Disconnected \n");}
+        catch (Exception e) {textArea.append("Opponent Disconnected \n");
+        e.printStackTrace();
+        }
     }
     public static DataOutputStream clientIM(String serverIP, JTextArea textArea){
         int PORT = 4545;
