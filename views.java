@@ -7,13 +7,11 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 public class views {
-
+    // data fields
     String serverIP;
     JTextArea chatArea;
     JTextArea announceArea;
-
-    public views(){
-    }
+    public views(){}
 
     public JPanel getHome(JFrame parent) {
         // Set up the background image panel
@@ -68,50 +66,6 @@ public class views {
         return  homePanel;
     }
 
-    public JPanel getInstructions(JFrame parent) {
-        // Set up the background image panel
-        ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
-
-        // Set gridbag layout to allow for buttons and background image
-        homePanel.setLayout(new GridBagLayout());
-        GridBagConstraints gbc = new GridBagConstraints();
-        gbc.gridwidth = GridBagConstraints.REMAINDER;
-
-        // Text panel holding instructions
-        JTextArea textArea = new JTextArea(10, 52);
-        textArea.setEditable(false);
-
-        // Read in instructions from file
-        String data = "";
-        try (BufferedReader reader = new BufferedReader(new FileReader("instructions.txt")))
-        {
-            String currentLine;
-            while ((currentLine = reader.readLine()) != null)
-                data += currentLine + "\n";
-        }
-        catch(Exception e) {System.out.println("Error: Unable to read instructions from file.\n");}
-        textArea.append(data);
-
-        // Add scroll panel
-        JPanel nestedText = new JPanel();
-        nestedText.add(textArea);
-        homePanel.add(nestedText,gbc);
-
-        // Main Menu Button
-        JButton menuButton = new JButton("Main Menu");
-        menuButton.addActionListener(e ->
-                {
-                    System.out.println("Main menu pressed");
-                    parent.setContentPane(getHome(parent));
-                    parent.revalidate();
-                    parent.repaint();
-                }
-        );
-        homePanel.add(menuButton,gbc);
-
-        // Return panel
-        return homePanel;
-    }
     public JPanel getGame(JFrame parent) {
         // GridBagLayout constraints
         GridBagConstraints gbc = new GridBagConstraints();
@@ -126,8 +80,6 @@ public class views {
         // Generate the player's ship placements using `shipStuff`
         int[][] playerBoard = shipStuff.generateBoard();
         JButton[][] yourBoardButtons = new JButton[10][10];
-        JTextArea chatArea = new JTextArea(15, 20);
-        chatArea.setEditable(false);
 
         // Create the first board (Opponent's Board)
         JPanel board1 = new JPanel(new GridLayout(10, 10));
@@ -143,11 +95,9 @@ public class views {
             button.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    String serverIp = "192.168.1.100"; // Update with actual server IP
-                    gameServer.sendMove(row + "," + col, serverIp, chatArea);
+                    gameServer.sendMove(row + "," + col, serverIP, announceArea);
                 }
             });
-
             board1.add(button);
         }
         boardContainer.add(board1, gbc);
@@ -187,7 +137,7 @@ public class views {
         mainPanel.add(sidePanel, BorderLayout.EAST);
 
         // Start a thread to listen for incoming moves and update the board
-        new Thread(() -> gameServer.listenToMoves(chatArea, yourBoardButtons, playerBoard)).start();
+        new Thread(() -> gameServer.listenToMoves(announceArea, yourBoardButtons, playerBoard)).start();
 
         // Return the main panel containing everything
         return mainPanel;
@@ -233,14 +183,11 @@ public class views {
         chatPanel.add(scrollPane, BorderLayout.CENTER);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
-        //listenForMessages();
-
         return chatPanel;
     }
 
-    // Create the chat panel method
+    // Create the announcer panel method
     private JPanel createAnnouncerPanel() {
-        // Panel for announcer
         JPanel announcerPanel = new JPanel(new BorderLayout());
         announcerPanel.setBorder(BorderFactory.createTitledBorder("Announcements"));
 
@@ -253,5 +200,50 @@ public class views {
         announcerPanel.add(scrollPane, BorderLayout.CENTER);
 
         return announcerPanel;
+    }
+
+    public JPanel getInstructions(JFrame parent) {
+        // Set up the background image panel
+        ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
+
+        // Set gridbag layout to allow for buttons and background image
+        homePanel.setLayout(new GridBagLayout());
+        GridBagConstraints gbc = new GridBagConstraints();
+        gbc.gridwidth = GridBagConstraints.REMAINDER;
+
+        // Text panel holding instructions
+        JTextArea textArea = new JTextArea(10, 52);
+        textArea.setEditable(false);
+
+        // Read in instructions from file
+        String data = "";
+        try (BufferedReader reader = new BufferedReader(new FileReader("instructions.txt")))
+        {
+            String currentLine;
+            while ((currentLine = reader.readLine()) != null)
+                data += currentLine + "\n";
+        }
+        catch(Exception e) {System.out.println("Error: Unable to read instructions from file.\n");}
+        textArea.append(data);
+
+        // Add scroll panel
+        JPanel nestedText = new JPanel();
+        nestedText.add(textArea);
+        homePanel.add(nestedText,gbc);
+
+        // Main Menu Button
+        JButton menuButton = new JButton("Main Menu");
+        menuButton.addActionListener(e ->
+                {
+                    System.out.println("Main menu pressed");
+                    parent.setContentPane(getHome(parent));
+                    parent.revalidate();
+                    parent.repaint();
+                }
+        );
+        homePanel.add(menuButton,gbc);
+
+        // Return panel
+        return homePanel;
     }
 }

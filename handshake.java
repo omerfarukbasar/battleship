@@ -12,7 +12,7 @@ public class handshake {
         try (DatagramSocket udpSocket = new DatagramSocket(gamePort)) {
             byte[] buffer = new byte[256];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            System.out.println("Listening for broadcast messages on port " + gamePort);
+            System.out.println("Listening for connection requests on port " + gamePort);
 
             // Receive broadcast message from a client
             udpSocket.receive(packet);

@@ -37,11 +37,8 @@ public class gameServer {
                 }
             }
 
-        } catch (SocketException e) {
-            System.out.println("host Socket error: " + e.getMessage());
-        } catch (IOException e) {
-            System.out.println("host IO error: " + e.getMessage());
-        }
+        } catch (SocketException e) {System.out.println("game listen Socket error: " + e.getMessage());
+        } catch (IOException e) {System.out.println("game listen IO error: " + e.getMessage());}
     }
 
     // Allows for sending a move upon hitting send
@@ -57,8 +54,6 @@ public class gameServer {
             udpSocket.send(packet);
             chat.append("You: " + message + "\n");
             chat.setCaretPosition(chat.getDocument().getLength());
-        } catch (IOException e) {
-            System.err.println("Join IO error: " + e.getMessage());
-        }
+        } catch (IOException e) {System.err.println("game send IO error: " + e.getMessage());}
     }
 }

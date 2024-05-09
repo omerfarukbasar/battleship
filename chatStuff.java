@@ -10,7 +10,7 @@ public class chatStuff {
         try (DatagramSocket udpSocket = new DatagramSocket(gamePort)) {
             byte[] buffer = new byte[256];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            System.out.println("Listening for broadcast messages on port " + gamePort);
+            System.out.println("Listening for chat messages on port " + gamePort);
 
 
             // Read messages from client while connection is still open
@@ -23,8 +23,8 @@ public class chatStuff {
             }
 
         }
-        catch (SocketException e) {System.out.println("host Socket error: " + e.getMessage());}
-        catch (IOException e) {System.out.println("host IO error: " + e.getMessage());}
+        catch (SocketException e) {System.out.println("chat listen Socket error: " + e.getMessage());}
+        catch (IOException e) {System.out.println("chat listen IO error: " + e.getMessage());}
     }
     // Allows for sending a message upon hitting send
     public static void sendMessage(String message, String serverIP, JTextArea chat) {
@@ -40,7 +40,7 @@ public class chatStuff {
             udpSocket.send(packet);
             chat.append("You: " + message + "\n");
             chat.setCaretPosition(chat.getDocument().getLength());
-        } catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
+        } catch (IOException e) {System.err.println("chat send IO error: " + e.getMessage());}
     }
 
 }
