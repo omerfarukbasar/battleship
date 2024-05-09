@@ -80,6 +80,10 @@ public class views {
         // Generate the player's ship placements using `shipStuff`
         int[][] playerBoard = shipStuff.generateBoard();
         JButton[][] yourBoardButtons = new JButton[10][10];
+        JButton[][] opponentBoardButtons = new JButton[10][10];
+
+        // Track whose turn it is (true for our turn, false for opponent's turn)
+        final boolean[] isMyTurn = {true};
 
         // Create the first board (Opponent's Board)
         JPanel board1 = new JPanel(new GridLayout(10, 10));
@@ -92,12 +96,16 @@ public class views {
             int col = i % 10;
 
             // Set up action listener to send moves via UDP
-            button.addActionListener(new ActionListener() {
-                @Override
-                public void actionPerformed(ActionEvent e) {
-                    gameServer.sendMove(row + "," + col, serverIP, announceArea);
+            button.addActionListener(e -> {
+                if (isMyTurn[0]) {
+                    button.setEnabled(false); // Disable after clicking
+                    gameServer.sendMove(row + "," + col, "192.168.1.100", announceArea);
+                    isMyTurn[0] = false; // Switch turns after move
+                } else {
+                    JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");
                 }
             });
+            opponentBoardButtons[row][col] = button;
             board1.add(button);
         }
         boardContainer.add(board1, gbc);
@@ -137,11 +145,12 @@ public class views {
         mainPanel.add(sidePanel, BorderLayout.EAST);
 
         // Start a thread to listen for incoming moves and update the board
-        new Thread(() -> gameServer.listenToMoves(announceArea, yourBoardButtons, playerBoard)).start();
+        new Thread(() -> gameServer.listenToMoves(announceArea, yourBoardButtons, playerBoard, isMyTurn)).start();
 
         // Return the main panel containing everything
         return mainPanel;
     }
+
 
     // Create the chat panel method
     public JPanel createChatPanel() {
