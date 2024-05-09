@@ -34,8 +34,7 @@ public class handshake {
 
             // Start the TCP server to accept incoming connections
             try (ServerSocket tcpServer = new ServerSocket(gamePort)) {
-                Socket clientSocket = tcpServer.accept();
-                usedSocket = clientSocket;
+                usedSocket = tcpServer.accept();
             }
         }
         catch (SocketException e) {System.out.println("host Socket error: " + e.getMessage());}
