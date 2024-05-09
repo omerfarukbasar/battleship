@@ -15,22 +15,23 @@ public class handshake {
             // Receive broadcast message from a client
             udpSocket.receive(packet);
             InetAddress clientAddress = packet.getAddress();
+            int clientPort = packet.getPort();
 
             // Log the received message
             String receivedMessage = new String(packet.getData(), 0, packet.getLength());
             System.out.println("Received broadcast message: " + receivedMessage);
 
             // Send the server's IP address and TCP port to the client
-            String serverMessage = InetAddress.getLocalHost().getHostAddress() + ":" + 8989;
+            String serverMessage = InetAddress.getLocalHost().getHostAddress() + ":" + 8990;
             buffer = serverMessage.getBytes();
-            DatagramPacket response = new DatagramPacket(buffer, buffer.length, clientAddress, 8989);
+            DatagramPacket response = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             udpSocket.send(response);
             System.out.println("Sent server IP and port: " + serverMessage);
             udpSocket.close();
 
             // Start the TCP server to accept incoming connections
-            try (ServerSocket tcpServer = new ServerSocket(8989)) {
-                System.out.println("Waiting for a client to connect via TCP on port " + 8989);
+            try (ServerSocket tcpServer = new ServerSocket(8990)) {
+                System.out.println("Waiting for a client to connect via TCP on port " + 8990);
                 Socket clientSocket = tcpServer.accept(); // Blocking until a client connects
                 System.out.println("Client connected via TCP!");
 
@@ -69,6 +70,7 @@ public class handshake {
             buffer = new byte[256];
             packet = new DatagramPacket(buffer, buffer.length);
             udpSocket.receive(packet);
+            System.out.println(packet.getSocketAddress());
             String serverMessage = new String(packet.getData(), 0, packet.getLength());
             udpSocket.close();
 
