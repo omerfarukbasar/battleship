@@ -99,7 +99,7 @@ public class views {
             button.addActionListener(e -> {
                 if (isMyTurn[0]) {
                     button.setEnabled(false); // Disable after clicking
-                    gameServer.sendMoveAndReceive(row + "," + col, serverIP, announceArea, opponentBoardButtons, row, col);
+                    gameServer.sendMove(row + "," + col, serverIP, announceArea);
                     isMyTurn[0] = false; // Switch turns after move
                 } else {
                     JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");
