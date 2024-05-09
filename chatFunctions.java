@@ -10,9 +10,18 @@ import java.awt.event.ActionListener;
 public class chatFunctions {
     private static Socket socket;
     static JTextArea textArea;
+    static DataOutputStream toServer;
+    static DataInputStream fromServer;
 
     chatFunctions(Socket socket){
-        chatFunctions.socket = socket;
+        try {
+            this.socket = socket;
+            this.toServer = new DataOutputStream(socket.getOutputStream());
+            this.fromServer = new DataInputStream(socket.getInputStream());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+
     }
 
     // Create the chat panel method
@@ -62,7 +71,7 @@ public class chatFunctions {
     public static void listenForMessages() {
         new Thread(() -> {
         try {
-            DataInputStream fromServer = new DataInputStream(socket.getInputStream());
+
             // While connection is still active
             while (true) {
                 // Decrypt message using communication key and display
@@ -78,7 +87,6 @@ public class chatFunctions {
     // Allows for sending a message upon hitting send
     public static void sendMessage(String message) {
         try {
-            DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
             toServer.writeUTF(message);
         }
         catch (IOException e) {System.err.println("Send error: " + e.getMessage());}
