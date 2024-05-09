@@ -39,7 +39,6 @@ public class gameServer {
                     yourBoardButtons[x][y].setBackground(Color.WHITE); // Mark as miss
                 }
 
-                // Switch turn to the host/client depending on the current state
                 isMyTurn[0] = true;
             }
 
@@ -50,20 +49,34 @@ public class gameServer {
         }
     }
 
-    // Allows sending a move upon hitting send
-    public static void sendMove(String message, String serverIP, JTextArea chat) {
+    // Allows sending a move and receiving the hit/miss response
+    public static void sendMoveAndReceive(String message, String serverIP, JTextArea chat, JButton[][] opponentBoardButtons, int row, int col) {
         try {
-            InetAddress broadcastAddress = InetAddress.getByName(serverIP);
+            InetAddress serverAddress = InetAddress.getByName(serverIP);
             DatagramSocket udpSocket = new DatagramSocket();
-            udpSocket.setBroadcast(true);
 
-            // Broadcast the move to find the server
+            // Send the move as "x,y" coordinates
             byte[] buffer = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, PORT);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, serverAddress, PORT);
             udpSocket.send(packet);
-            chat.append("You: " + message + "\n");
+
+            // Listen for a response (hit/miss)
+            byte[] responseBuffer = new byte[256];
+            DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length);
+            udpSocket.receive(responsePacket);
+            String responseMessage = new String(responsePacket.getData(), 0, responsePacket.getLength());
+
+            // Update the opponent's board based on the hit/miss status
+            if (responseMessage.equals("HIT")) {
+                opponentBoardButtons[row][col].setBackground(Color.RED); // Hit
+            } else {
+                opponentBoardButtons[row][col].setBackground(Color.WHITE); // Miss
+            }
+
+            chat.append("You: " + message + " (" + responseMessage + ")\n");
             chat.setCaretPosition(chat.getDocument().getLength());
             udpSocket.close();
+
         } catch (IOException e) {
             System.err.println("Send IO error: " + e.getMessage());
         }
