@@ -20,6 +20,7 @@ public class chatStuff {
                 udpSocket.receive(packet);
                 String receivedMessage = new String(packet.getData(), 0, packet.getLength());
                 textArea.append("Opponent: " + receivedMessage + "\n");
+                textArea.setCaretPosition(textArea.getDocument().getLength());
             }
 
         }
@@ -39,6 +40,7 @@ public class chatStuff {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, 8989);
             udpSocket.send(packet);
             chat.append("You: " + message + "\n");
+            chat.setCaretPosition(chat.getDocument().getLength());
         } catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
     }
 
