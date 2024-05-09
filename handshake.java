@@ -72,6 +72,9 @@ public class handshake {
             }
         } catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
     }
+    public Socket getUsedSocket(){
+        return usedSocket;
+    }
 }
 
 

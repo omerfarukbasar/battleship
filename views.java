@@ -210,7 +210,7 @@ public class views {
     public void listenForMessages() {
         new Thread(() -> {
             try {
-                DataInputStream fromServer = new DataInputStream(protocol.usedSocket.getInputStream());
+                DataInputStream fromServer = new DataInputStream(protocol.getUsedSocket().getInputStream());
                 // While connection is still active
                 while (true) {
                     String message = fromServer.readUTF();
@@ -225,7 +225,7 @@ public class views {
     // Allows for sending a message upon hitting send
     public void sendMessage(String message) {
         try {
-            DataOutputStream toServer = new DataOutputStream(protocol.usedSocket.getOutputStream());
+            DataOutputStream toServer = new DataOutputStream(protocol.getUsedSocket().getOutputStream());
             toServer.writeUTF(message);
         }
         catch (IOException e) {System.err.println("Send error: " + e.getMessage());}
