@@ -28,7 +28,7 @@ public class views {
                 {
                     System.out.println("Host pressed");
                     serverIP = handshake.startConnection();
-                    parent.setContentPane(getGame(parent));
+                    parent.setContentPane(getGame(parent,true));
                     new Thread(() -> chatStuff.listenToMsg(chatArea)).start();
                     parent.revalidate();
                     parent.repaint();
@@ -42,7 +42,7 @@ public class views {
                 {
                     System.out.println("Join pressed");
                     serverIP = handshake.joinConnection();
-                    parent.setContentPane(getGame(parent));
+                    parent.setContentPane(getGame(parent,false));
                     new Thread(() -> chatStuff.listenToMsg(chatArea)).start();
                     parent.revalidate();
                     parent.repaint();
@@ -66,7 +66,7 @@ public class views {
         return  homePanel;
     }
 
-    public JPanel getGame(JFrame parent) {
+    public JPanel getGame(JFrame parent, boolean isHost) {
         // GridBagLayout constraints
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -82,8 +82,8 @@ public class views {
         JButton[][] yourBoardButtons = new JButton[10][10];
         JButton[][] opponentBoardButtons = new JButton[10][10];
 
-        // Track whose turn it is (true for our turn, false for opponent's turn)
-        final boolean[] isMyTurn = {true};
+        // Track whose turn it is; initialize based on whether this player is the host
+        final boolean[] isMyTurn = {isHost};
 
         // Create the first board (Opponent's Board)
         JPanel board1 = new JPanel(new GridLayout(10, 10));
@@ -99,7 +99,7 @@ public class views {
             button.addActionListener(e -> {
                 if (isMyTurn[0]) {
                     button.setEnabled(false); // Disable after clicking
-                    gameServer.sendMove(row + "," + col, "192.168.1.100", announceArea);
+                    gameServer.sendMove(row + "," + col, serverIP, announceArea);
                     isMyTurn[0] = false; // Switch turns after move
                 } else {
                     JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");

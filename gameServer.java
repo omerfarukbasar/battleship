@@ -5,11 +5,14 @@ import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
+import javax.swing.*;
+import java.net.*;
+import java.io.IOException;
 
 public class gameServer {
     private static final int PORT = 8991;
 
-    // Individual thread that handles each client and changes turn state
+    // Listen for moves and update the board
     public static void listenToMoves(JTextArea textArea, JButton[][] yourBoardButtons, int[][] playerBoard, boolean[] isMyTurn) {
         try (DatagramSocket udpSocket = new DatagramSocket(PORT)) {
             byte[] buffer = new byte[256];
@@ -36,7 +39,8 @@ public class gameServer {
                     yourBoardButtons[x][y].setBackground(Color.WHITE); // Mark as miss
                 }
 
-                isMyTurn[0] = true; // Switch turn to current player after move
+                // Switch turn to the host/client depending on the current state
+                isMyTurn[0] = true;
             }
 
         } catch (SocketException e) {
@@ -46,7 +50,7 @@ public class gameServer {
         }
     }
 
-    // Allows for sending a move upon hitting send
+    // Allows sending a move upon hitting send
     public static void sendMove(String message, String serverIP, JTextArea chat) {
         try {
             InetAddress broadcastAddress = InetAddress.getByName(serverIP);
