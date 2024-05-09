@@ -112,7 +112,6 @@ public class views {
         // Return panel
         return homePanel;
     }
-    // Main game UI with two boards and the chat panel on the right
     public JPanel getGame(JFrame parent) {
         // GridBagLayout constraints
         GridBagConstraints gbc = new GridBagConstraints();
@@ -124,30 +123,36 @@ public class views {
         // Create the board panel with GridBagLayout
         JPanel boardContainer = new JPanel(new GridBagLayout());
 
-        // Create the first board (10x10)
+        // Generate the player's ship placement using shipStuff
+        int[][] playerBoard = shipStuff.generateBoard();
+
+        // Create the first board (Opponent's Board)
         JPanel board1 = new JPanel(new GridLayout(10, 10));
         board1.setBorder(BorderFactory.createTitledBorder("Opponent's Board"));
         for (int i = 0; i < 100; i++) {
             JButton button = new JButton(String.valueOf(i + 1));
             button.setOpaque(true);
-            if (i % 2 == 0) button.setBackground(Color.RED);
-            else if (i % 3 == 0) button.setBackground(Color.GREEN);
-            else button.setBackground(Color.BLUE);
+            button.setBackground(Color.LIGHT_GRAY); // Color for opponent's grid (unknown)
             board1.add(button);
         }
         boardContainer.add(board1, gbc);
 
-        // Create the second board (10x10)
+        // Create the second board (Your Board) based on player's ship placement
         JPanel board2 = new JPanel(new GridLayout(10, 10));
         board2.setBorder(BorderFactory.createTitledBorder("Your Board"));
-        for (int i = 0; i < 100; i++) {
-            JButton button = new JButton(String.valueOf(i + 1));
-            button.setEnabled(false);
-            button.setOpaque(true);
-            if (i % 2 == 0) button.setBackground(Color.RED);
-            else if (i % 3 == 0) button.setBackground(Color.GREEN);
-            else button.setBackground(Color.BLUE);
-            board2.add(button);
+        for (int row = 0; row < 10; row++) {
+            for (int col = 0; col < 10; col++) {
+                JButton button = new JButton(String.valueOf(row * 10 + col + 1));
+                button.setEnabled(false); // Disable clicking for player's board
+                button.setOpaque(true);
+                // Set button colors based on ship placement
+                if (playerBoard[row][col] == 1) {
+                    button.setBackground(Color.GREEN); // Ship present
+                } else {
+                    button.setBackground(Color.BLUE); // Empty water
+                }
+                board2.add(button);
+            }
         }
         boardContainer.add(board2, gbc);
 
@@ -156,11 +161,12 @@ public class views {
         mainPanel.add(boardContainer, BorderLayout.CENTER);
         JPanel sidePanel = new JPanel(new BorderLayout());
 
+        // Add chat and announcer panels
         sidePanel.add(createChatPanel(), BorderLayout.NORTH);
         sidePanel.add(createAnnouncerPanel(), BorderLayout.SOUTH);
 
+        // Add the entire side panel to the main layout
         mainPanel.add(sidePanel, BorderLayout.EAST);
-
 
         // Return the main panel containing everything
         return mainPanel;
