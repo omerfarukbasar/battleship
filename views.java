@@ -6,8 +6,9 @@ import java.io.*;
 
 public class views {
 
-    handshake protocol = new handshake();
+    String serverIP;
     JTextArea chatArea;
+    DataOutputStream toServer;
 
     public views(){
     }
@@ -26,8 +27,9 @@ public class views {
         hostButton.addActionListener(e ->
                 {
                     System.out.println("Host pressed");
-                    protocol.startConnection();
+                    handshake.startConnection();
                     parent.setContentPane(getGame(parent));
+                    chatStuff.hostIM(chatArea);
                     parent.revalidate();
                     parent.repaint();
                 }
@@ -39,8 +41,9 @@ public class views {
         joinButton.addActionListener(e ->
                 {
                     System.out.println("Join pressed");
-                    protocol.joinConnection();
+                    serverIP = handshake.joinConnection();
                     parent.setContentPane(getGame(parent));
+                    chatStuff.clientIM(serverIP, chatArea);
                     parent.revalidate();
                     parent.repaint();
                 }
@@ -182,7 +185,7 @@ public class views {
                 String message = inputField.getText().trim();
                 if (!message.isEmpty()) {
                     chatArea.append("You: " + message + "\n");
-                    sendMessage(message);
+                    chatStuff.sendMessage(message,toServer,chatArea);
                     inputField.setText("");
                 }
             }
@@ -201,11 +204,11 @@ public class views {
         chatPanel.add(scrollPane, BorderLayout.CENTER);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
-        listenForMessages();
+        //listenForMessages();
 
         return chatPanel;
     }
-
+    /*
     // Listens to ongoing chat messages relayed from server using another thread
     public void listenForMessages() {
         new Thread(() -> {
@@ -222,6 +225,7 @@ public class views {
         }).start();
     }
 
+
     // Allows for sending a message upon hitting send
     public void sendMessage(String message) {
         try {
@@ -231,7 +235,7 @@ public class views {
         catch (IOException e) {System.err.println("Send error: " + e.getMessage());}
         catch (Exception e) {System.err.println("Other Send error: " + e.getMessage());}
     }
-
+    */
 
     // Create the chat panel method
     private JPanel createAnnouncerPanel() {
@@ -249,4 +253,6 @@ public class views {
 
         return announcerPanel;
     }
+
+
 }

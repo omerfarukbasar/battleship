@@ -6,13 +6,7 @@ import java.net.*;
 
 public class handshake {
 
-    public Socket usedSocket;
-
-    public handshake(){
-        usedSocket = null;
-    }
-
-    public void startConnection() {
+    public static void startConnection() {
         int gamePort = 8989;
 
         try (DatagramSocket udpSocket = new DatagramSocket(gamePort)) {
@@ -24,6 +18,7 @@ public class handshake {
             udpSocket.receive(packet);
             InetAddress clientAddress = packet.getAddress();
             int clientPort = packet.getPort();
+            System.out.println(clientPort);
 
             // Send the server's IP address and TCP port to the client
             String serverMessage = "Received request to join";
@@ -32,18 +27,13 @@ public class handshake {
             udpSocket.send(response);
             udpSocket.close();
 
-            // Start the TCP server to accept incoming connections
-            try (ServerSocket tcpServer = new ServerSocket(gamePort)) {
-                usedSocket = tcpServer.accept();
-                System.out.println(usedSocket.toString());
-            }
         }
         catch (SocketException e) {System.out.println("host Socket error: " + e.getMessage());}
         catch (IOException e) {System.out.println("host IO error: " + e.getMessage());}
     }
 
-    public void joinConnection() {
-        int gamePort = 8989;
+    public static String joinConnection() {
+        //int gamePort = 8989;
         try {
             // Broadcast address for the network
             InetAddress broadcastAddress = InetAddress.getByName("255.255.255.255");
@@ -65,15 +55,10 @@ public class handshake {
             // Extract server IP address and TCP port
             String serverIp = packet.getAddress().toString().substring(1);
 
-            // Establish a TCP connection to the server
-            try (Socket tcpSocket = new Socket(serverIp, gamePort)) {
-                usedSocket = tcpSocket;
-                System.out.println(usedSocket.toString());
-            }
+            return serverIp;
+
         } catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
-    }
-    public Socket getUsedSocket(){
-        return usedSocket;
+        return null;
     }
 }
 
