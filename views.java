@@ -10,7 +10,7 @@ public class views {
 
     String serverIP;
     JTextArea chatArea;
-    //DataOutputStream toServer;
+    JTextArea announceArea;
 
     public views(){
     }
@@ -120,11 +120,14 @@ public class views {
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
 
-        // Create the board panel with GridBagLayout
+        // Create a board panel using GridBagLayout
         JPanel boardContainer = new JPanel(new GridBagLayout());
 
-        // Generate the player's ship placement using shipStuff
+        // Generate the player's ship placements using `shipStuff`
         int[][] playerBoard = shipStuff.generateBoard();
+        JButton[][] yourBoardButtons = new JButton[10][10];
+        JTextArea chatArea = new JTextArea(15, 20);
+        chatArea.setEditable(false);
 
         // Create the first board (Opponent's Board)
         JPanel board1 = new JPanel(new GridLayout(10, 10));
@@ -132,12 +135,24 @@ public class views {
         for (int i = 0; i < 100; i++) {
             JButton button = new JButton(String.valueOf(i + 1));
             button.setOpaque(true);
-            button.setBackground(Color.LIGHT_GRAY); // Color for opponent's grid (unknown)
+            button.setBackground(Color.LIGHT_GRAY); // Unknown grid for the opponent
+            int row = i / 10;
+            int col = i % 10;
+
+            // Set up action listener to send moves via UDP
+            button.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    String serverIp = "192.168.1.100"; // Update with actual server IP
+                    gameServer.sendMove(row + "," + col, serverIp, chatArea);
+                }
+            });
+
             board1.add(button);
         }
         boardContainer.add(board1, gbc);
 
-        // Create the second board (Your Board) based on player's ship placement
+        // Create the second board (Your Board) and store the buttons
         JPanel board2 = new JPanel(new GridLayout(10, 10));
         board2.setBorder(BorderFactory.createTitledBorder("Your Board"));
         for (int row = 0; row < 10; row++) {
@@ -145,12 +160,15 @@ public class views {
                 JButton button = new JButton(String.valueOf(row * 10 + col + 1));
                 button.setEnabled(false); // Disable clicking for player's board
                 button.setOpaque(true);
+
                 // Set button colors based on ship placement
                 if (playerBoard[row][col] == 1) {
                     button.setBackground(Color.GREEN); // Ship present
                 } else {
                     button.setBackground(Color.BLUE); // Empty water
                 }
+
+                yourBoardButtons[row][col] = button;
                 board2.add(button);
             }
         }
@@ -167,6 +185,9 @@ public class views {
 
         // Add the entire side panel to the main layout
         mainPanel.add(sidePanel, BorderLayout.EAST);
+
+        // Start a thread to listen for incoming moves and update the board
+        new Thread(() -> gameServer.listenToMoves(chatArea, yourBoardButtons, playerBoard)).start();
 
         // Return the main panel containing everything
         return mainPanel;
@@ -224,9 +245,9 @@ public class views {
         announcerPanel.setBorder(BorderFactory.createTitledBorder("Announcements"));
 
         // Text area for announcements
-        JTextArea chatArea = new JTextArea(15, 20);
-        chatArea.setEditable(false); // Make it non-editable for incoming messages
-        JScrollPane scrollPane = new JScrollPane(chatArea);
+        announceArea = new JTextArea(15, 20);
+        announceArea.setEditable(false); // Make it non-editable for incoming messages
+        JScrollPane scrollPane = new JScrollPane(announceArea);
 
         // Add components to the announcement panel
         announcerPanel.add(scrollPane, BorderLayout.CENTER);
