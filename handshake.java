@@ -22,7 +22,7 @@ public class handshake {
             System.out.println("Received broadcast message: " + receivedMessage);
 
             // Send the server's IP address and TCP port to the client
-            String serverMessage = InetAddress.getLocalHost().getHostAddress() + ":" + 8990;
+            String serverMessage = "8990";
             buffer = serverMessage.getBytes();
             DatagramPacket response = new DatagramPacket(buffer, buffer.length, clientAddress, clientPort);
             udpSocket.send(response);
@@ -76,10 +76,8 @@ public class handshake {
             udpSocket.close();
 
             // Extract server IP address and TCP port
-            String[] serverInfo = packet.getAddress().toString().substring(1).split(":");
-            String serverIp = serverInfo[0];
-            //String serverAddress = serverInfo[0];
-            int tcpPort = Integer.parseInt(serverInfo[1]);
+            String serverIp = packet.getAddress().toString().substring(1);
+            int tcpPort = Integer.parseInt(new String(packet.getData(), 0, packet.getLength()));
             System.out.println("Received server IP and port: " + serverIp + ":" + tcpPort);
 
             // Establish a TCP connection to the server
