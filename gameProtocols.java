@@ -31,24 +31,24 @@ public class gameProtocols {
                 udpSocket.receive(packet);
                 String receivedMessage = new String(packet.getData(), 0, packet.getLength());
                 String[] coordinates = receivedMessage.split(",");
-                int x = Integer.parseInt(coordinates[0]);
-                int y = Integer.parseInt(coordinates[1]);
+                int row = Integer.parseInt(coordinates[0]);
+                int col = Integer.parseInt(coordinates[1]);
 
                 // Update the board based on outcome
                 String result;
-                if (playerBoard[x][y] == OCCUPIED) {
-                    playerBoard[x][y] = HIT;
-                    playerBoardButtons[x][y].setBackground(Color.RED);
+                if (playerBoard[row][col] == OCCUPIED) {
+                    playerBoard[row][col] = HIT;
+                    playerBoardButtons[row][col].setBackground(Color.RED);
                     result = "HIT";
                 }
                 else {
-                    playerBoard[x][y] = MISS;
-                    playerBoardButtons[x][y].setBackground(Color.WHITE);
+                    playerBoard[row][col] = MISS;
+                    playerBoardButtons[row][col].setBackground(Color.WHITE);
                     result = "MISS";
                 }
 
                 // Relay move to announcement panel and scroll to latest message
-                announcerArea.append("Opponent Turn: (" + ((x*10) + (y+1)) + ") (" + result + ")\n");
+                announcerArea.append("Opponent Turn: (" + ((row*10) + (col+1)) + ") (" + result + ")\n");
                 announcerArea.setCaretPosition(announcerArea.getDocument().getLength());
 
                 // Send outcome back to opponent
@@ -72,8 +72,8 @@ public class gameProtocols {
                 isMyTurn[0] = true;
             }
 
-        } catch (SocketException e) {System.out.println("Listen Socket error: " + e.getMessage());
-        } catch (IOException e) {System.out.println("Listen IO error: " + e.getMessage());}
+        } catch (SocketException e) {System.err.println("Listen Socket error: " + e.getMessage());
+        } catch (IOException e) {System.err.println("Listen IO error: " + e.getMessage());}
     }
 
     // Send a move and update the opponent's board based on the response

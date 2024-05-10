@@ -26,8 +26,8 @@ public class chatProtocols {
                 chatArea.setCaretPosition(chatArea.getDocument().getLength());
             }
         }
-        catch (SocketException e) {System.out.println("Chat Listen Socket error: " + e.getMessage());}
-        catch (IOException e) {System.out.println("Chat Listen IO error: " + e.getMessage());}
+        catch (SocketException e) {System.err.println("Chat Listen Socket error: " + e.getMessage());}
+        catch (IOException e) {System.err.println("Chat Listen IO error: " + e.getMessage());}
     }
 
     // Sends messages to opponent using UDP for data transmission

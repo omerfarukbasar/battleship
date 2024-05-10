@@ -5,7 +5,7 @@ import java.io.*;
 
 public class views {
     // Data fields
-    private String opponentIP;
+    private String opponentIP = null;
     private JTextArea chatArea;
     private JTextArea announceArea;
     private static final int BOARD_SIZE = 10;
@@ -28,11 +28,22 @@ public class views {
         hostButton.addActionListener(e ->
                 {
                     System.out.println("Host pressed");
-                    opponentIP = handshake.startConnection();
-                    parent.setContentPane(getGame(true));
-                    new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
+                    // Display loading screen
+                    imagePanel load = new imagePanel(new ImageIcon("waiting.gif").getImage());
+                    JPanel loadPanel = new JPanel(new BorderLayout());
+                    loadPanel.add(load,BorderLayout.CENTER);
+                    parent.setContentPane(loadPanel);
                     parent.revalidate();
                     parent.repaint();
+
+                    // Setup game when opponent has joined
+                    new Thread(() -> {
+                        opponentIP = handshake.startConnection();
+                        parent.setContentPane(getGame(true));
+                        new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
+                        parent.revalidate();
+                        parent.repaint();
+                    }).start();
                 }
         );
         homePanel.add(hostButton, gbc);
@@ -42,28 +53,15 @@ public class views {
         joinButton.addActionListener(e ->
                 {
                     System.out.println("Join pressed");
-
-                    // Setup timer that times out match search after 3 seconds
-                    Timer timer = new Timer(3000, timerEvent -> {
-                        JOptionPane.showMessageDialog(null, "No match currently hosted on network.");
-                        parent.setContentPane(getHome(parent));
-                        parent.revalidate();
-                        parent.repaint();
-                    });
-                    timer.setRepeats(false);
-
-                    // Start the timer and attempt to join a connection
-                    timer.start();
                     opponentIP = handshake.joinConnection();
-
-                    // If a match is found
-                    if (opponentIP != null) {
-                        timer.stop();
+                    if(opponentIP != null){
                         parent.setContentPane(getGame(false));
                         new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                         parent.revalidate();
                         parent.repaint();
                     }
+                    else
+                        JOptionPane.showMessageDialog(parent, "No match found on network.");
                 }
         );
         homePanel.add(joinButton, gbc);
@@ -249,7 +247,7 @@ public class views {
             while ((currentLine = reader.readLine()) != null)
                 data += currentLine + "\n";
         }
-        catch(Exception e) {System.out.println("Error: Unable to read instructions from file.\n");}
+        catch(Exception e) {System.err.println("Error: Unable to read instructions from file.\n");}
         textArea.append(data);
 
         // Add scroll panel

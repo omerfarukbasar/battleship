@@ -55,19 +55,25 @@ public class handshake {
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, destinationAddress, PORT);
             udpSocket.send(packet);
 
+            // Set a 2-second timeout for receiving a response
+            udpSocket.setSoTimeout(2000);
+
             // Listen for host's response containing its IP address
             buffer = new byte[256];
             packet = new DatagramPacket(buffer, buffer.length);
-            udpSocket.receive(packet);
-            udpSocket.close();
 
-            // Extract host's IP
-            String opponentIp = packet.getAddress().toString().substring(1);
-
-            // Return opponent IP to use for later
-            return opponentIp;
-
-        } catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
+            try {
+                udpSocket.receive(packet);
+                udpSocket.close();
+                String opponentIp = packet.getAddress().toString().substring(1);
+                return opponentIp;
+            }
+            catch (SocketTimeoutException e) {
+                System.err.println("No response from the host within the timeout period.");
+                return null;
+            }
+        }
+        catch (IOException e) {System.err.println("Join IO error: " + e.getMessage());}
         // Should not reach here unless something goes wrong
         return null;
     }
