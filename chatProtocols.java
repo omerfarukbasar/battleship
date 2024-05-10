@@ -38,12 +38,12 @@ public class chatProtocols {
             InetAddress broadcastAddress = InetAddress.getByName(serverIP);
             udpSocket.setBroadcast(true);
 
-            // Pack your message and send to opponent
+            // Pack message and send to opponent
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, PORT);
             udpSocket.send(packet);
 
-            // Add your message to chat panel history
+            // Add message to chat panel history
             chatArea.append("You: " + message + "\n");
             chatArea.setCaretPosition(chatArea.getDocument().getLength());
         }

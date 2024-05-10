@@ -38,8 +38,13 @@ public class views {
 
                     // Setup game when opponent has joined
                     new Thread(() -> {
+                        //Extract opponent's IP
                         opponentIP = handshake.startConnection();
+
+                        // Sets up check for connection in case opponent disconnects
                         new Thread(()-> liveConnectionCheck.hostStatus(parent)).start();
+
+                        //Sets up rest of game
                         parent.setContentPane(getGame(true,parent));
                         new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                         parent.revalidate();
@@ -54,7 +59,10 @@ public class views {
         joinButton.addActionListener(e ->
                 {
                     System.out.println("Join pressed");
+                    //Extract opponent's IP
                     opponentIP = handshake.joinConnection();
+
+                    // If connection is made
                     if(opponentIP != null){
                         new Thread(()-> liveConnectionCheck.clientStatus(opponentIP,parent)).start();
                         parent.setContentPane(getGame(false, parent));
@@ -62,6 +70,7 @@ public class views {
                         parent.revalidate();
                         parent.repaint();
                     }
+                    // If no connection is made within timeout period
                     else
                         JOptionPane.showMessageDialog(parent, "No match found on network.");
                 }

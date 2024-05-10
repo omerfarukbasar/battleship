@@ -1,13 +1,21 @@
 Instructions:
 
-Click Join to join a match hosted on the local network
+This is a 2 player game that is meant to be hosted over a local network.
+Do not attempt to launch 2 instances on the same machine, it will not work.
+This game should be played on 2 separate computers.
+One person will host the game, and the other will join the host's game.
 
-Click Host to host a match on the local network
+With the current implementation, the host is the one who goes first.
 
-Rules:
+When it is a user's turn, they must click a coordinate to attack on the opponent's board.
+Successful attacks are colored in red while misses are marked in blue.
+On the player's board their ships are randomly assigned and marked in green.
+When the player's ship is hit, it's marked in red and misses are marked in white.
 
-Upon joining a match, both users will have their ships randomly placed on the board for them.
-A person will be randomly selected to go first. Upon the user's turn, they will be asked to pick a
-coordinate on the map to launch artillery at. After confirming the selection, it will be announced
-if the attack was a hit or miss. The goal is to sink all of the opponent's ships. A winner is decided
-when one person has lost all of their ships.
+After each attack, the selected coordinate is disabled to prevent duplicate launches.
+The overall objective is to sink all the opponent's ships.
+The game ends whenever someone runs out of ships.
+The game also ends if someone disconnects during the match.
+
+Users can chat with each other using the chat panel if they wish.
+Moves made by players are shown in the announcement panel.
