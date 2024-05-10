@@ -39,8 +39,8 @@ public class views {
                     // Setup game when opponent has joined
                     new Thread(() -> {
                         opponentIP = handshake.startConnection();
-                        new Thread(()-> liveConnectionCheck.hostStatus()).start();
-                        parent.setContentPane(getGame(true));
+                        new Thread(()-> liveConnectionCheck.hostStatus(parent)).start();
+                        parent.setContentPane(getGame(true,parent));
                         new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                         parent.revalidate();
                         parent.repaint();
@@ -56,8 +56,8 @@ public class views {
                     System.out.println("Join pressed");
                     opponentIP = handshake.joinConnection();
                     if(opponentIP != null){
-                        new Thread(()-> liveConnectionCheck.clientStatus(opponentIP)).start();
-                        parent.setContentPane(getGame(false));
+                        new Thread(()-> liveConnectionCheck.clientStatus(opponentIP,parent)).start();
+                        parent.setContentPane(getGame(false, parent));
                         new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                         parent.revalidate();
                         parent.repaint();
@@ -85,7 +85,7 @@ public class views {
     }
 
     // Sets up the game page for the application
-    public JPanel getGame(boolean isHost) {
+    public JPanel getGame(boolean isHost, JFrame parent) {
         // Set gridbag layout to organize chat, announcer, and board components
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
@@ -118,11 +118,11 @@ public class views {
             button.addActionListener(e -> {
                 if (isMyTurn[0]) {
                     button.setEnabled(false);
-                    gameProtocols.sendMove(opponentIP, announceArea, opponentBoardButtons, row, col);
+                    gameProtocols.sendMove(opponentIP, announceArea, opponentBoardButtons, row, col,parent);
                     isMyTurn[0] = false;
                 }
                 else
-                    JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");
+                    JOptionPane.showMessageDialog(parent, "Wait for your opponent's move!");
             });
             opponentBoardButtons[row][col] = button;
             board1.add(button);
@@ -161,7 +161,7 @@ public class views {
         mainPanel.add(sidePanel, BorderLayout.EAST);
 
         // Start a thread to listen for incoming moves and update the board
-        new Thread(() -> gameProtocols.listenToMoves(announceArea, playerBoardButtons, playerBoard, isMyTurn)).start();
+        new Thread(() -> gameProtocols.listenToMoves(announceArea, playerBoardButtons, playerBoard, isMyTurn, parent)).start();
 
         // Return the main panel containing everything
         return mainPanel;

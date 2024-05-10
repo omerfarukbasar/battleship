@@ -17,7 +17,7 @@ public class gameProtocols {
     private static final int BOARD_SIZE = 10;
 
     // Listen for moves and update the board
-    public static void listenToMoves(JTextArea announcerArea, JButton[][] playerBoardButtons, int[][] playerBoard, boolean[] isMyTurn) {
+    public static void listenToMoves(JTextArea announcerArea, JButton[][] playerBoardButtons, int[][] playerBoard, boolean[] isMyTurn, JFrame parent) {
         // Setup datagram socket
         try (DatagramSocket udpSocket = new DatagramSocket(PORT)) {
             // Setup to receive packets
@@ -64,7 +64,7 @@ public class gameProtocols {
 
                 // Game ending condition
                 if(fleetStatus.equals("YES")){
-                    JOptionPane.showMessageDialog(null, "Defeat! Your opponent has sunk all your ships.");
+                    JOptionPane.showMessageDialog(parent, "Defeat! Your opponent has sunk all your ships.");
                     System.exit(0);
                 }
 
@@ -77,7 +77,7 @@ public class gameProtocols {
     }
 
     // Send a move and update the opponent's board based on the response
-    public static void sendMove(String opponentIP, JTextArea announcerArea, JButton[][] opponentBoardButtons, int row, int col) {
+    public static void sendMove(String opponentIP, JTextArea announcerArea, JButton[][] opponentBoardButtons, int row, int col, JFrame parent) {
         // Setup datagram socket
         try(DatagramSocket udpSocket = new DatagramSocket()) {
             // Send your move to the opponent
@@ -112,7 +112,7 @@ public class gameProtocols {
 
             // Game ending condition
             if (fleetStatus.equals("YES")){
-                JOptionPane.showMessageDialog(null, "Victory! All opponent's ships have been sunk.");
+                JOptionPane.showMessageDialog(parent, "Victory! All opponent's ships have been sunk.");
                 System.exit(0);
             }
         }
