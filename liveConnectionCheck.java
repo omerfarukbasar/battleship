@@ -17,7 +17,7 @@ public class liveConnectionCheck {
             DataOutputStream toServer = new DataOutputStream(socket.getOutputStream());
 
             while (true)
-                continue;
+                fromServer.readUTF();
         }
         catch (IOException e) {System.err.println("Connection error: " + e.getMessage());}
         catch (Exception e) {System.err.println("Other Connection error: " + e.getMessage());}
@@ -35,7 +35,7 @@ public class liveConnectionCheck {
             DataOutputStream toClient = new DataOutputStream(socket.getOutputStream());
 
             while (true)
-                continue;
+                fromClient.readUTF();
         }
         catch (IOException e) {System.err.println("Server error: " + e.getMessage());}
         catch (Exception e) {System.out.println("Other server error: " + e.getMessage());}
