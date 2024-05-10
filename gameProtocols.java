@@ -14,6 +14,7 @@ public class gameProtocols {
     private static final int OCCUPIED = 1;
     private static final int HIT = 2;
     private static final int MISS = 3;
+    private static final int BOARD_SIZE = 10;
 
     // Listen for moves and update the board
     public static void listenToMoves(JTextArea announcerArea, JButton[][] playerBoardButtons, int[][] playerBoard, boolean[] isMyTurn) {
@@ -55,6 +56,18 @@ public class gameProtocols {
                 DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length, packet.getAddress(), packet.getPort());
                 udpSocket.send(responsePacket);
 
+                // Send fleet status to opponent
+                String fleetStatus = fleetDestroyed(playerBoard);
+                byte[] statusBuffer = fleetStatus.getBytes();
+                DatagramPacket statusPacket = new DatagramPacket(statusBuffer, statusBuffer.length, packet.getAddress(), packet.getPort());
+                udpSocket.send(statusPacket);
+
+                // Game ending condition
+                if(fleetStatus.equals("YES")){
+                    JOptionPane.showMessageDialog(null, "Defeat! Your opponent has sunk all your ships.");
+                    System.exit(0);
+                }
+
                 // Swap turns
                 isMyTurn[0] = true;
             }
@@ -80,6 +93,12 @@ public class gameProtocols {
             udpSocket.receive(responsePacket);
             String result = new String(responsePacket.getData(), 0, responsePacket.getLength());
 
+            // Listen for fleet status
+            byte[] statusBuffer = new byte[256];
+            DatagramPacket statusPacket = new DatagramPacket(statusBuffer, statusBuffer.length);
+            udpSocket.receive(statusPacket);
+            String fleetStatus = new String(statusPacket.getData(), 0, statusPacket.getLength());
+
             // Update the opponent's board based on the outcome
             if (result.equals("HIT"))
                 opponentBoardButtons[row][col].setBackground(Color.RED);
@@ -90,7 +109,25 @@ public class gameProtocols {
             announcerArea.append("Your Turn: (" + ((row*10) + (col+1)) + ") (" + result + ")\n");
             announcerArea.setCaretPosition(announcerArea.getDocument().getLength());
             udpSocket.close();
+
+            // Game ending condition
+            if (fleetStatus.equals("YES")){
+                JOptionPane.showMessageDialog(null, "Victory! All opponent's ships have been sunk.");
+                System.exit(0);
+            }
         }
         catch (IOException e) {System.err.println("Send IO error: " + e.getMessage());}
+    }
+
+    // Checks if all ships on the board have sunken
+    private static String fleetDestroyed(int[][] board) {
+        // Iterate through each  coordinate and check for ship presence
+        for (int row = 0; row < BOARD_SIZE ; row++)
+            for (int col = 0; col < BOARD_SIZE; col++)
+                if (board[row][col] == OCCUPIED)
+                    return "NO";
+
+        // If all ships have sunk to the bottom of the sea
+        return "YES";
     }
 }
