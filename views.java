@@ -90,8 +90,8 @@ public class views {
         // Create opponent's board
         JPanel board1 = new JPanel(new GridLayout(BOARD_SIZE, BOARD_SIZE));
         board1.setBorder(BorderFactory.createTitledBorder("Opponent's Board"));
-        for (int i = 1; i < 101; i++) {
-            JButton button = new JButton(String.valueOf(i));
+        for (int i = 0; i < 100; i++) {
+            JButton button = new JButton(String.valueOf(i + 1));
             button.setOpaque(true);
             button.setBackground(Color.LIGHT_GRAY);
             int row = i / BOARD_SIZE;
