@@ -1,14 +1,11 @@
 import javax.swing.*;
-import java.awt.*;
-import java.io.BufferedReader;
-import java.io.FileReader;
 
 public class client extends JFrame {
     // JFrame data fields
     private static final int FRAME_WIDTH = 1000;
     private static final int FRAME_HEIGHT = 600;
 
-    // Establishes GUI for program
+    // Establishes main menu GUI for program
     private void createGUI() {
         // Set window size
         this.setSize(FRAME_WIDTH, FRAME_HEIGHT);
@@ -29,7 +26,5 @@ public class client extends JFrame {
         createGUI();
     }
 
-    public static void main(String[] args) {
-        client Client = new client();
-    }
+    public static void main(String[] args) {client Client = new client();}
 }

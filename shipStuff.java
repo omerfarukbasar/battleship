@@ -1,17 +1,14 @@
 import java.util.Random;
 
 public class shipStuff {
-
-    // Size of the grid
+    // Data fields
     private static final int GRID_SIZE = 10;
     private static final int EMPTY = 0;
-    private static final int SHIP = 1;
-
-    // List of ship lengths
-    private static final int[] SHIP_LENGTHS = {5, 4, 3, 3, 2};
+    private static final int OCCUPIED = 1;
+    private static final int[] SHIPS = {5, 4, 3, 3, 2};
     private static final Random random = new Random();
 
-
+    // Generates 2D array containing ship coordinates
     public static int[][] generateBoard() {
         // Grid to represent the battleship board
         int[][] grid = new int[GRID_SIZE][GRID_SIZE];
@@ -24,7 +21,7 @@ public class shipStuff {
         }
 
         // Place all ships
-        for (int length : SHIP_LENGTHS) {
+        for (int length : SHIPS) {
             boolean placed = false;
 
             // Keep trying until the ship is placed
@@ -34,17 +31,8 @@ public class shipStuff {
         }
         return grid;
     }
-    public static int[][] checkMove(int x, int y, int[][] grid) {
-        if(grid[x][y] == 1){
-            grid[x][y] = 2;
-        }
-        else{
-            grid[x][y] = 3;
-        }
-        return grid;
-    }
 
-    // Attempt to place a ship on the grid
+    // Attempts to place a ship on the grid
     private static boolean placeShip(int length, int[][] grid) {
         // Randomly choose orientation: horizontal or vertical
         boolean horizontal = random.nextBoolean();
@@ -58,9 +46,8 @@ public class shipStuff {
             int row = horizontal ? startRow : startRow + i;
             int col = horizontal ? startCol + i : startCol;
 
-            if (grid[row][col] != EMPTY) {
-                return false; // The ship overlaps with another one
-            }
+            // When coordinate is occupied by another ship
+            if (grid[row][col] != EMPTY) {return false;}
         }
 
         // Place the ship on the grid
@@ -68,9 +55,10 @@ public class shipStuff {
             int row = horizontal ? startRow : startRow + i;
             int col = horizontal ? startCol + i : startCol;
 
-            grid[row][col] = SHIP;
+            grid[row][col] = OCCUPIED;
         }
 
-        return true; // Ship placed successfully
+        // Once ship is placed, return
+        return true;
     }
 }

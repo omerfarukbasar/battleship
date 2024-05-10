@@ -3,11 +3,9 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
-import java.net.ServerSocket;
-import java.net.Socket;
 
 public class views {
-    // data fields
+    // Data fields
     String serverIP;
     JTextArea chatArea;
     JTextArea announceArea;
@@ -99,11 +97,10 @@ public class views {
             button.addActionListener(e -> {
                 if (isMyTurn[0]) {
                     button.setEnabled(false); // Disable after clicking
-                    gameServer.sendMoveAndReceive(row + "," + col, serverIP, announceArea, opponentBoardButtons, row, col);
+                    gameServer.sendMove(row + "," + col, serverIP, announceArea, opponentBoardButtons, row, col);
                     isMyTurn[0] = false; // Switch turns after move
-                } else {
-                    JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");
                 }
+                else {JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");}
             });
             opponentBoardButtons[row][col] = button;
             board1.add(button);
@@ -120,11 +117,8 @@ public class views {
                 button.setOpaque(true);
 
                 // Set button colors based on ship placement
-                if (playerBoard[row][col] == 1) {
-                    button.setBackground(Color.GREEN); // Ship present
-                } else {
-                    button.setBackground(Color.BLUE); // Empty water
-                }
+                if (playerBoard[row][col] == 1) {button.setBackground(Color.GREEN);}
+                else {button.setBackground(Color.BLUE);}
 
                 yourBoardButtons[row][col] = button;
                 board2.add(button);
@@ -173,7 +167,7 @@ public class views {
                 String message = inputField.getText().trim();
                 if (!message.isEmpty()) {
                     //chatArea.append("You: " + message + "\n");
-                    chatStuff.sendMessage(message,serverIP,chatArea);
+                    chatStuff.sendMsg(message,serverIP,chatArea);
                     inputField.setText("");
                 }
             }

@@ -3,44 +3,50 @@ import java.io.IOException;
 import java.net.*;
 
 public class chatStuff {
+    // Port to be used for chat communication
+    private static final int PORT = 8989;
 
-    // Individual thread that handles each client
+    // Listens to messages sent in the chat using the UDP for data transmission
     public static void listenToMsg(JTextArea textArea) {
-        int gamePort = 8989;
-        try (DatagramSocket udpSocket = new DatagramSocket(gamePort)) {
+        // Setup datagram socket
+        try (DatagramSocket udpSocket = new DatagramSocket(PORT)) {
+            // Setup to receive packets
             byte[] buffer = new byte[256];
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-            System.out.println("Listening for chat messages on port " + gamePort);
+            System.out.println("Listening for chat messages on port " + PORT);
 
-
-            // Read messages from client while connection is still open
+            // Read messages from opponent while connection is still open
             while (true) {
-                // Log the received message
+                // Unpack message
                 udpSocket.receive(packet);
                 String receivedMessage = new String(packet.getData(), 0, packet.getLength());
+
+                // Update chat panel to reflect new messages
                 textArea.append("Opponent: " + receivedMessage + "\n");
                 textArea.setCaretPosition(textArea.getDocument().getLength());
             }
-
         }
-        catch (SocketException e) {System.out.println("chat listen Socket error: " + e.getMessage());}
-        catch (IOException e) {System.out.println("chat listen IO error: " + e.getMessage());}
+        catch (SocketException e) {System.out.println("Chat Listen Socket error: " + e.getMessage());}
+        catch (IOException e) {System.out.println("Chat Listen IO error: " + e.getMessage());}
     }
-    // Allows for sending a message upon hitting send
-    public static void sendMessage(String message, String serverIP, JTextArea chat) {
-        try {
-            // Broadcast address for the network
+
+    // Sends messages to opponent using UDP for data transmission
+    public static void sendMsg(String message, String serverIP, JTextArea chat) {
+        // Setup datagram socket
+        try (DatagramSocket udpSocket = new DatagramSocket()) {
+            // Setup broadcasting to opponent
             InetAddress broadcastAddress = InetAddress.getByName(serverIP);
-            DatagramSocket udpSocket = new DatagramSocket();
             udpSocket.setBroadcast(true);
 
-            // Broadcast message to find the server
+            // Pack your message and send to opponent
             byte[] buffer = message.getBytes();
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, 8989);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, PORT);
             udpSocket.send(packet);
+
+            // Add your message to chat panel history
             chat.append("You: " + message + "\n");
             chat.setCaretPosition(chat.getDocument().getLength());
-        } catch (IOException e) {System.err.println("chat send IO error: " + e.getMessage());}
+        }
+        catch (IOException e) {System.err.println("Chat Send IO error: " + e.getMessage());}
     }
-
 }
