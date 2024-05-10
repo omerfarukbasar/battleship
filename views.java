@@ -42,11 +42,28 @@ public class views {
         joinButton.addActionListener(e ->
                 {
                     System.out.println("Join pressed");
+
+                    // Setup timer that times out match search after 3 seconds
+                    Timer timer = new Timer(3000, timerEvent -> {
+                        JOptionPane.showMessageDialog(null, "No match currently hosted on network.");
+                        parent.setContentPane(getHome(parent));
+                        parent.revalidate();
+                        parent.repaint();
+                    });
+                    timer.setRepeats(false);
+
+                    // Start the timer and attempt to join a connection
+                    timer.start();
                     opponentIP = handshake.joinConnection();
-                    parent.setContentPane(getGame(false));
-                    new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
-                    parent.revalidate();
-                    parent.repaint();
+
+                    // If a match is found
+                    if (opponentIP != null) {
+                        timer.stop();
+                        parent.setContentPane(getGame(false));
+                        new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
+                        parent.revalidate();
+                        parent.repaint();
+                    }
                 }
         );
         homePanel.add(joinButton, gbc);
