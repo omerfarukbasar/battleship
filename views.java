@@ -39,6 +39,7 @@ public class views {
                     // Setup game when opponent has joined
                     new Thread(() -> {
                         opponentIP = handshake.startConnection();
+                        new Thread(()-> liveConnectionCheck.hostStatus()).start();
                         parent.setContentPane(getGame(true));
                         new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                         parent.revalidate();
@@ -55,6 +56,7 @@ public class views {
                     System.out.println("Join pressed");
                     opponentIP = handshake.joinConnection();
                     if(opponentIP != null){
+                        new Thread(()-> liveConnectionCheck.clientStatus(opponentIP)).start();
                         parent.setContentPane(getGame(false));
                         new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                         parent.revalidate();

@@ -9,7 +9,7 @@ public class liveConnectionCheck {
     private static final int PORT = 8988;
 
     // Protocol for connecting server, initiated by hitting connect
-    private void clientStatus(String opponentIP) {
+    public static void clientStatus(String opponentIP) {
         try (Socket socket = new Socket(opponentIP, PORT);){
             System.out.println("Started 'connection check' socket on Port " + PORT  +"\n");
             // Setup data streams
@@ -24,7 +24,7 @@ public class liveConnectionCheck {
     }
 
     // Protocol for starting up the server
-    private void hostStatus() {
+    public static void hostStatus() {
         try (ServerSocket serverSocket = new ServerSocket(PORT)) {
             System.out.println("Started 'connection check' socket on Port " + PORT  +"\n");
 
