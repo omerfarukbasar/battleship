@@ -3,12 +3,12 @@ import java.awt.Graphics;
 import java.awt.Image;
 import javax.swing.JPanel;
 
-public class ImagePanel extends JPanel {
+public class imagePanel extends JPanel {
     // Data fields
     private Image img;
 
     // Used to draw the background image displayed on the menu
-    public ImagePanel(Image img) {
+    public imagePanel(Image img) {
         this.img = img;
         Dimension size = new Dimension(img.getWidth(null), img.getHeight(null));
         setPreferredSize(size);

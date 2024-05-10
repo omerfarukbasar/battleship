@@ -2,12 +2,12 @@ import javax.swing.*;
 import java.io.IOException;
 import java.net.*;
 
-public class chatStuff {
+public class chatProtocols {
     // Port to be used for chat communication
     private static final int PORT = 8989;
 
     // Listens to messages sent in the chat using the UDP for data transmission
-    public static void listenToMsg(JTextArea textArea) {
+    public static void listenToMsg(JTextArea chatArea) {
         // Setup datagram socket
         try (DatagramSocket udpSocket = new DatagramSocket(PORT)) {
             // Setup to receive packets
@@ -22,8 +22,8 @@ public class chatStuff {
                 String receivedMessage = new String(packet.getData(), 0, packet.getLength());
 
                 // Update chat panel to reflect new messages
-                textArea.append("Opponent: " + receivedMessage + "\n");
-                textArea.setCaretPosition(textArea.getDocument().getLength());
+                chatArea.append("Opponent: " + receivedMessage + "\n");
+                chatArea.setCaretPosition(chatArea.getDocument().getLength());
             }
         }
         catch (SocketException e) {System.out.println("Chat Listen Socket error: " + e.getMessage());}
@@ -31,7 +31,7 @@ public class chatStuff {
     }
 
     // Sends messages to opponent using UDP for data transmission
-    public static void sendMsg(String message, String serverIP, JTextArea chat) {
+    public static void sendMsg(String message, String serverIP, JTextArea chatArea) {
         // Setup datagram socket
         try (DatagramSocket udpSocket = new DatagramSocket()) {
             // Setup broadcasting to opponent
@@ -44,8 +44,8 @@ public class chatStuff {
             udpSocket.send(packet);
 
             // Add your message to chat panel history
-            chat.append("You: " + message + "\n");
-            chat.setCaretPosition(chat.getDocument().getLength());
+            chatArea.append("You: " + message + "\n");
+            chatArea.setCaretPosition(chatArea.getDocument().getLength());
         }
         catch (IOException e) {System.err.println("Chat Send IO error: " + e.getMessage());}
     }

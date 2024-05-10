@@ -1,19 +1,22 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 
 public class views {
     // Data fields
-    String serverIP;
-    JTextArea chatArea;
-    JTextArea announceArea;
+    private String opponentIP;
+    private JTextArea chatArea;
+    private JTextArea announceArea;
+    private static final int BOARD_SIZE = 10;
+
+    // Basic constructor, prevents from being static
     public views(){}
 
+    // Sets up the landing page of the application
     public JPanel getHome(JFrame parent) {
         // Set up the background image panel
-        ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
+        imagePanel homePanel = new imagePanel(new ImageIcon("background.png").getImage());
 
         // Set gridbag layout to allow for buttons and background image
         homePanel.setLayout(new GridBagLayout());
@@ -25,9 +28,9 @@ public class views {
         hostButton.addActionListener(e ->
                 {
                     System.out.println("Host pressed");
-                    serverIP = handshake.startConnection();
-                    parent.setContentPane(getGame(parent,true));
-                    new Thread(() -> chatStuff.listenToMsg(chatArea)).start();
+                    opponentIP = handshake.startConnection();
+                    parent.setContentPane(getGame(true));
+                    new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                     parent.revalidate();
                     parent.repaint();
                 }
@@ -39,9 +42,9 @@ public class views {
         joinButton.addActionListener(e ->
                 {
                     System.out.println("Join pressed");
-                    serverIP = handshake.joinConnection();
-                    parent.setContentPane(getGame(parent,false));
-                    new Thread(() -> chatStuff.listenToMsg(chatArea)).start();
+                    opponentIP = handshake.joinConnection();
+                    parent.setContentPane(getGame(false));
+                    new Thread(() -> chatProtocols.listenToMsg(chatArea)).start();
                     parent.revalidate();
                     parent.repaint();
                 }
@@ -64,116 +67,115 @@ public class views {
         return  homePanel;
     }
 
-    public JPanel getGame(JFrame parent, boolean isHost) {
-        // GridBagLayout constraints
+    // Sets up the game page for the application
+    public JPanel getGame(boolean isHost) {
+        // Set gridbag layout to organize chat, announcer, and board components
         GridBagConstraints gbc = new GridBagConstraints();
         gbc.gridwidth = GridBagConstraints.REMAINDER;
         gbc.fill = GridBagConstraints.BOTH;
         gbc.weightx = 1.0;
         gbc.weighty = 1.0;
 
-        // Create a board panel using GridBagLayout
+        // Create a board panel using gridbag, prevents buttons from being cutoff compared to using other layouts
         JPanel boardContainer = new JPanel(new GridBagLayout());
 
-        // Generate the player's ship placements using `shipStuff`
-        int[][] playerBoard = shipStuff.generateBoard();
-        JButton[][] yourBoardButtons = new JButton[10][10];
-        JButton[][] opponentBoardButtons = new JButton[10][10];
+        // Generate the player's ship placements
+        int[][] playerBoard = shipGen.generateBoard();
+        JButton[][] playerBoardButtons = new JButton[BOARD_SIZE][BOARD_SIZE];
+        JButton[][] opponentBoardButtons = new JButton[BOARD_SIZE][BOARD_SIZE];
 
-        // Track whose turn it is; initialize based on whether this player is the host
+        // Track whose turn it is, for now host goes first
         final boolean[] isMyTurn = {isHost};
 
-        // Create the first board (Opponent's Board)
-        JPanel board1 = new JPanel(new GridLayout(10, 10));
+        // Create opponent's board
+        JPanel board1 = new JPanel(new GridLayout(BOARD_SIZE, BOARD_SIZE));
         board1.setBorder(BorderFactory.createTitledBorder("Opponent's Board"));
-        for (int i = 0; i < 100; i++) {
-            JButton button = new JButton(String.valueOf(i + 1));
+        for (int i = 1; i < 101; i++) {
+            JButton button = new JButton(String.valueOf(i));
             button.setOpaque(true);
-            button.setBackground(Color.LIGHT_GRAY); // Unknown grid for the opponent
-            int row = i / 10;
-            int col = i % 10;
+            button.setBackground(Color.LIGHT_GRAY);
+            int row = i / BOARD_SIZE;
+            int col = i % BOARD_SIZE;
 
             // Set up action listener to send moves via UDP and update colors
             button.addActionListener(e -> {
                 if (isMyTurn[0]) {
-                    button.setEnabled(false); // Disable after clicking
-                    gameServer.sendMove(row + "," + col, serverIP, announceArea, opponentBoardButtons, row, col);
-                    isMyTurn[0] = false; // Switch turns after move
+                    button.setEnabled(false);
+                    gameProtocols.sendMove(opponentIP, announceArea, opponentBoardButtons, row, col);
+                    isMyTurn[0] = false;
                 }
-                else {JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");}
+                else
+                    JOptionPane.showMessageDialog(null, "Wait for your opponent's move!");
             });
             opponentBoardButtons[row][col] = button;
             board1.add(button);
         }
         boardContainer.add(board1, gbc);
 
-        // Create the second board (Your Board) and store the buttons
-        JPanel board2 = new JPanel(new GridLayout(10, 10));
+        // Create player's board and store the buttons
+        JPanel board2 = new JPanel(new GridLayout(BOARD_SIZE, BOARD_SIZE));
         board2.setBorder(BorderFactory.createTitledBorder("Your Board"));
-        for (int row = 0; row < 10; row++) {
-            for (int col = 0; col < 10; col++) {
+        for (int row = 0; row < BOARD_SIZE; row++) {
+            for (int col = 0; col < BOARD_SIZE; col++) {
                 JButton button = new JButton(String.valueOf(row * 10 + col + 1));
-                button.setEnabled(false); // Disable clicking for player's board
+                button.setEnabled(false);
                 button.setOpaque(true);
 
                 // Set button colors based on ship placement
-                if (playerBoard[row][col] == 1) {button.setBackground(Color.GREEN);}
-                else {button.setBackground(Color.BLUE);}
+                if (playerBoard[row][col] == 1)
+                    button.setBackground(Color.GREEN);
+                else
+                    button.setBackground(Color.BLUE);
 
-                yourBoardButtons[row][col] = button;
+                playerBoardButtons[row][col] = button;
                 board2.add(button);
             }
         }
         boardContainer.add(board2, gbc);
 
-        // Create the main container to hold both game boards and the chat panel
-        JPanel mainPanel = new JPanel(new BorderLayout());
-        mainPanel.add(boardContainer, BorderLayout.CENTER);
+        // Create side panel for chat and announcer panels
         JPanel sidePanel = new JPanel(new BorderLayout());
-
-        // Add chat and announcer panels
         sidePanel.add(createChatPanel(), BorderLayout.NORTH);
         sidePanel.add(createAnnouncerPanel(), BorderLayout.SOUTH);
 
-        // Add the entire side panel to the main layout
+        // Add boards and side panel to main panel
+        JPanel mainPanel = new JPanel(new BorderLayout());
+        mainPanel.add(boardContainer, BorderLayout.CENTER);
         mainPanel.add(sidePanel, BorderLayout.EAST);
 
         // Start a thread to listen for incoming moves and update the board
-        new Thread(() -> gameServer.listenToMoves(announceArea, yourBoardButtons, playerBoard, isMyTurn)).start();
+        new Thread(() -> gameProtocols.listenToMoves(announceArea, playerBoardButtons, playerBoard, isMyTurn)).start();
 
         // Return the main panel containing everything
         return mainPanel;
     }
 
 
-    // Create the chat panel method
+    // Sets up the chat panel that is displayed on the game page
     public JPanel createChatPanel() {
         // Panel for chat
         JPanel chatPanel = new JPanel(new BorderLayout());
         chatPanel.setBorder(BorderFactory.createTitledBorder("Chat"));
 
-        // Text area for chat messages
+        // Text area for displaying chat messages
         chatArea = new JTextArea(15, 20);
-        chatArea.setEditable(false); // Make it non-editable for incoming messages
+        chatArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(chatArea);
 
-        // Text field for entering new chat messages
+        // Input field for entering new chat messages
         JTextField inputField = new JTextField();
         JButton sendButton = new JButton("Send");
 
         // Action listener for the send button
-        ActionListener sendAction = new ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                String message = inputField.getText().trim();
-                if (!message.isEmpty()) {
-                    //chatArea.append("You: " + message + "\n");
-                    chatStuff.sendMsg(message,serverIP,chatArea);
-                    inputField.setText("");
-                }
+        ActionListener sendAction = e -> {
+            String message = inputField.getText().trim();
+            if (!message.isEmpty()) {
+                chatProtocols.sendMsg(message,opponentIP,chatArea);
+                inputField.setText("");
             }
         };
 
-        // Attach the send action to both the button and the text field (on Enter)
+        // Attach send action to button and hitting Enter
         sendButton.addActionListener(sendAction);
         inputField.addActionListener(sendAction);
 
@@ -186,28 +188,32 @@ public class views {
         chatPanel.add(scrollPane, BorderLayout.CENTER);
         chatPanel.add(inputPanel, BorderLayout.SOUTH);
 
+        // Return panel
         return chatPanel;
     }
 
-    // Create the announcer panel method
+    // Sets up the announcer panel that is displayed on the game page
     private JPanel createAnnouncerPanel() {
+        // Setup panel layout
         JPanel announcerPanel = new JPanel(new BorderLayout());
         announcerPanel.setBorder(BorderFactory.createTitledBorder("Announcements"));
 
-        // Text area for announcements
+        // Text area for displaying announcements
         announceArea = new JTextArea(15, 20);
-        announceArea.setEditable(false); // Make it non-editable for incoming messages
+        announceArea.setEditable(false);
         JScrollPane scrollPane = new JScrollPane(announceArea);
 
         // Add components to the announcement panel
         announcerPanel.add(scrollPane, BorderLayout.CENTER);
 
+        // Return panel
         return announcerPanel;
     }
 
+    // Sets up the instruction page for the application
     public JPanel getInstructions(JFrame parent) {
         // Set up the background image panel
-        ImagePanel homePanel = new ImagePanel(new ImageIcon("background.png").getImage());
+        imagePanel homePanel = new imagePanel(new ImageIcon("background.png").getImage());
 
         // Set gridbag layout to allow for buttons and background image
         homePanel.setLayout(new GridBagLayout());

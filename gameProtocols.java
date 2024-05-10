@@ -6,19 +6,17 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class gameServer {
+public class gameProtocols {
     // Port to be used for game communication
     private static final int PORT = 8991;
 
     // Data fields
-    private static final int GRID_SIZE = 10;
-    private static final int EMPTY = 0;
     private static final int OCCUPIED = 1;
     private static final int HIT = 2;
     private static final int MISS = 3;
 
     // Listen for moves and update the board
-    public static void listenToMoves(JTextArea textArea, JButton[][] yourBoardButtons, int[][] playerBoard, boolean[] isMyTurn) {
+    public static void listenToMoves(JTextArea announcerArea, JButton[][] playerBoardButtons, int[][] playerBoard, boolean[] isMyTurn) {
         // Setup datagram socket
         try (DatagramSocket udpSocket = new DatagramSocket(PORT)) {
             // Setup to receive packets
@@ -28,36 +26,36 @@ public class gameServer {
 
             // Read moves from opponent while the connection is still open
             while (true) {
+                // Extract attack coordinates from packet
                 udpSocket.receive(packet);
                 String receivedMessage = new String(packet.getData(), 0, packet.getLength());
-                String[] coords = receivedMessage.split(",");
-                int x = Integer.parseInt(coords[0]);
-                int y = Integer.parseInt(coords[1]);
+                String[] coordinates = receivedMessage.split(",");
+                int x = Integer.parseInt(coordinates[0]);
+                int y = Integer.parseInt(coordinates[1]);
 
-
-
-                // Update the board based on whether it's a hit or miss
-                String responseMessage;
+                // Update the board based on outcome
+                String result;
                 if (playerBoard[x][y] == OCCUPIED) {
-                    playerBoard[x][y] = HIT; // Hit
-                    yourBoardButtons[x][y].setBackground(Color.RED);
-                    responseMessage = "HIT";
+                    playerBoard[x][y] = HIT;
+                    playerBoardButtons[x][y].setBackground(Color.RED);
+                    result = "HIT";
                 }
                 else {
                     playerBoard[x][y] = MISS;
-                    yourBoardButtons[x][y].setBackground(Color.WHITE);
-                    responseMessage = "MISS";
+                    playerBoardButtons[x][y].setBackground(Color.WHITE);
+                    result = "MISS";
                 }
 
-                textArea.append("Opponent Turn: (" + ((x*10) + (y+1)) + ") (" + responseMessage + ")\n");
-                textArea.setCaretPosition(textArea.getDocument().getLength());
+                // Relay move to announcement panel and scroll to latest message
+                announcerArea.append("Opponent Turn: (" + ((x*10) + (y+1)) + ") (" + result + ")\n");
+                announcerArea.setCaretPosition(announcerArea.getDocument().getLength());
 
-                // Send the hit/miss status back to the player who sent the move
-                byte[] responseBuffer = responseMessage.getBytes();
+                // Send outcome back to opponent
+                byte[] responseBuffer = result.getBytes();
                 DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length, packet.getAddress(), packet.getPort());
                 udpSocket.send(responsePacket);
 
-                // Switch turn to the host/client depending on the current state
+                // Swap turns
                 isMyTurn[0] = true;
             }
 
@@ -66,34 +64,31 @@ public class gameServer {
     }
 
     // Send a move and update the opponent's board based on the response
-    public static void sendMove(String message, String serverIP, JTextArea chat, JButton[][] opponentBoardButtons, int row, int col) {
+    public static void sendMove(String opponentIP, JTextArea announcerArea, JButton[][] opponentBoardButtons, int row, int col) {
         // Setup datagram socket
         try(DatagramSocket udpSocket = new DatagramSocket()) {
-
-            InetAddress broadcastAddress = InetAddress.getByName(serverIP);
-            // Send the move
+            // Send your move to the opponent
+            InetAddress broadcastAddress = InetAddress.getByName(opponentIP);
+            String message = row + "," + col;
             byte[] buffer = message.getBytes();
             DatagramPacket packet = new DatagramPacket(buffer, buffer.length, broadcastAddress, PORT);
             udpSocket.send(packet);
 
-            // Listen for a response (hit/miss)
+            // Listen for the outcome
             byte[] responseBuffer = new byte[256];
             DatagramPacket responsePacket = new DatagramPacket(responseBuffer, responseBuffer.length);
             udpSocket.receive(responsePacket);
-            String responseMessage = new String(responsePacket.getData(), 0, responsePacket.getLength());
+            String result = new String(responsePacket.getData(), 0, responsePacket.getLength());
 
-            // Update the opponent's board based on the hit/miss status
-            if (responseMessage.equals("HIT"))
+            // Update the opponent's board based on the outcome
+            if (result.equals("HIT"))
                 opponentBoardButtons[row][col].setBackground(Color.RED);
             else
                 opponentBoardButtons[row][col].setBackground(Color.BLUE);
 
-            String[] coords = message.split(",");
-            int x = Integer.parseInt(coords[0]);
-            int y = Integer.parseInt(coords[1]);
-
-            chat.append("Your Turn: (" + ((x*10) + (y+1)) + ") (" + responseMessage + ")\n");
-            chat.setCaretPosition(chat.getDocument().getLength());
+            // Relay move to announcement panel and scroll to latest message
+            announcerArea.append("Your Turn: (" + ((row*10) + (col+1)) + ") (" + result + ")\n");
+            announcerArea.setCaretPosition(announcerArea.getDocument().getLength());
             udpSocket.close();
         }
         catch (IOException e) {System.err.println("Send IO error: " + e.getMessage());}
