@@ -24,6 +24,9 @@ The game ends whenever someone runs out of ships. The game also ends if someone 
 Users can chat with each other using the chat panel if they wish.
 Moves made by players are shown in the announcement panel.
 
+# Screenshots
+![Screenshot of Menu](menu.png)
+![Screenshot of Menu](game.png)
 # Future possible additions:
 
 Randomized first turn
