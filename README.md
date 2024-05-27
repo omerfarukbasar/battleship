@@ -26,7 +26,7 @@ Moves made by players are shown in the announcement panel.
 
 # Screenshots
 ![Screenshot of Menu](menu.png)
-![Screenshot of Menu](game.png)
+![Screenshot of Game](game.png)
 # Future possible additions:
 
 Randomized first turn
