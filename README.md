@@ -2,7 +2,7 @@
 
 Author: Omer Faruk Basar
 
-Final project for Intro to Java
+Final project for Java
 
 Due: May 10, 2024
 
