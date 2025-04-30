@@ -24,6 +24,10 @@ The game ends whenever someone runs out of ships. The game also ends if someone 
 Users can chat with each other using the chat panel if they wish.
 Moves made by players are shown in the announcement panel.
 
+# Demo Video - Click to play 
+[![Watch the video](https://img.youtube.com/vi/vQGnQdy09qQ/maxresdefault.jpg)](https://www.youtube.com/watch?v=vQGnQdy09qQ)
+
+
 # Screenshots
 ![Screenshot of Menu](menu.png)
 ![Screenshot of Game](game.png)
